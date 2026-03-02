@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Products | Inyathi-Mz — Medicines, Medical Equipment & Supplies Mozambique</title>
+  <meta name="description" content="Browse Inyathi-Mz's full range of pharmaceutical and medical products including prescription medicines, vaccines, surgical supplies, PPE, and hygiene products." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="container">
+      <div class="header-inner">
+        <a href="index.html" class="logo">
+          <div class="logo-icon">IM</div>
+          <div class="logo-text">
+            <span class="logo-name">Inyathi-Mz</span>
+            <span class="logo-tagline">Medical Supplies</span>
+          </div>
+        </a>
+        <nav class="main-nav">
+          <a href="index.html"    class="nav-link" data-i18n="nav_home">Home</a>
+          <a href="about.html"    class="nav-link" data-i18n="nav_about">About Us</a>
+          <a href="products.html" class="nav-link active" data-i18n="nav_products">Products</a>
+          <a href="services.html" class="nav-link" data-i18n="nav_services">Services</a>
+          <a href="pricing.html"  class="nav-link" data-i18n="nav_pricing">Pricing</a>
+          <a href="contact.html"  class="nav-link" data-i18n="nav_contact">Contact</a>
+        </nav>
+        <div class="header-actions">
+          <div class="lang-toggle">
+            <button class="lang-btn active" data-lang="en">EN</button>
+            <button class="lang-btn" data-lang="pt">PT</button>
+          </div>
+          <a href="pricing.html" class="btn btn-primary" data-i18n="nav_quote_btn">Request a Quote</a>
+        </div>
+        <button class="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+    <nav class="mobile-nav">
+      <a href="index.html"    class="nav-link" data-i18n="nav_home">Home</a>
+      <a href="about.html"    class="nav-link" data-i18n="nav_about">About Us</a>
+      <a href="products.html" class="nav-link active" data-i18n="nav_products">Products</a>
+      <a href="services.html" class="nav-link" data-i18n="nav_services">Services</a>
+      <a href="pricing.html"  class="nav-link" data-i18n="nav_pricing">Pricing</a>
+      <a href="contact.html"  class="nav-link" data-i18n="nav_contact">Contact</a>
+      <div class="header-actions">
+        <div class="lang-toggle">
+          <button class="lang-btn active" data-lang="en">EN</button>
+          <button class="lang-btn" data-lang="pt">PT</button>
+        </div>
+        <a href="pricing.html" class="btn btn-primary" data-i18n="nav_quote_btn">Request a Quote</a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- PAGE HERO -->
+  <section class="page-hero">
+    <div class="container">
+      <h1 data-i18n="products_page_title">Our Products</h1>
+      <p data-i18n="products_page_subtitle">A comprehensive range of pharmaceutical and medical products for every healthcare need.</p>
+      <div class="breadcrumb">
+        <a href="index.html" data-i18n="nav_home">Home</a>
+        <span><i class="fas fa-chevron-right"></i></span>
+        <span data-i18n="nav_products">Products</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- FILTER TABS -->
+  <div class="products-filter">
+    <div class="container">
+      <div class="filter-tabs">
+        <button class="filter-tab active" data-filter="all" data-i18n="filter_all">All Products</button>
+        <button class="filter-tab" data-filter="medicines" data-i18n="filter_medicines">Medicines</button>
+        <button class="filter-tab" data-filter="equipment" data-i18n="filter_equipment">Equipment</button>
+        <button class="filter-tab" data-filter="consumables" data-i18n="filter_consumables">Consumables</button>
+        <button class="filter-tab" data-filter="hygiene" data-i18n="filter_hygiene">Hygiene</button>
+        <button class="filter-tab" data-filter="ppe" data-i18n="filter_ppe">PPE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRODUCTS GRID -->
+  <section class="products-section section-pad">
+    <div class="container">
+      <div class="text-center reveal" style="margin-bottom:1rem;">
+        <span class="section-label" data-i18n="products_section_label">Product Catalogue</span>
+        <h2 class="section-title" data-i18n="products_section_title">Explore Our Full Product Range</h2>
+      </div>
+
+      <div class="products-full-grid">
+
+       
+
+        <!-- Chronic Disease Treatments -->
+        <div class="product-card reveal reveal-delay-2" data-category="medicines">
+          <div class="product-card-img">
+            <span class="product-card-tag" data-i18n="filter_medicines">Medicines</span>
+            <i class="fas fa-heart-pulse"></i>
+          </div>
+          <div class="product-card-body">
+            <h4>Chronic Disease Treatments</h4>
+            <p>Medications for diabetes, hypertension, cardiovascular disease, HIV/AIDS, tuberculosis, and other chronic conditions.</p>
+          </div>
+          <div class="product-card-footer">
+            <span><i class="fas fa-check-circle" style="color:var(--green);"></i> In Stock</span>
+            <a href="pricing.html"><span data-i18n="enquire_btn">Enquire Now</span> <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+
+        <!-- Pain Management -->
+        <div class="product-card reveal reveal-delay-3" data-category="medicines">
+          <div class="product-card-img">
+            <span class="product-card-tag" data-i18n="filter_medicines">Medicines</span>
+            <i class="fas fa-hand-holding-medical"></i>
+          </div>
+          <div class="product-card-body">
+            <h4>Pain Management</h4>
+            <p>Analgesics, NSAIDs, opioid analgesics, and topical pain relief products for acute and chronic pain management.</p>
+          </div>
+          <div class="product-card-footer">
+            <span><i class="fas fa-check-circle" style="color:var(--green);"></i> In Stock</span>
+            <a href="pricing.html"><span data-i18n="enquire_btn">Enquire Now</span> <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+
+        <!-- Diagnostic Equipment -->
+        <div class="product-card reveal reveal-delay-1" data-category="equipment">
+          <div class="product-card-img">
+            <span class="product-card-tag" data-i18n="filter_equipment">Equipment</span>
+            <i class="fas fa-microscope"></i>
+          </div>
+          <div class="product-card-body">
+            <h4>Diagnostic Equipment</h4>
+            <p>Blood glucose monitors, blood pressure devices, pulse oximeters, thermometers, and laboratory diagnostic tools.</p>
+          </div>
+          <div class="product-card-footer">
+            <span><i class="fas fa-check-circle" style="color:var(--green);"></i> Available</span>
+            <a href="pricing.html"><span data-i18n="enquire_btn">Enquire Now</span> <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+
+        <!-- Surgical Instruments -->
+        <div class="product-card reveal reveal-delay-2" data-category="equipment">
+          <div class="product-card-img">
+            <span class="product-card-tag" data-i18n="filter_equipment">Equipment</span>
+            <i class="fas fa-scalpel"></i>
+          </div>
+          <div class="product-card-body">
+            <h4>Surgical Instruments</h4>
+            <p>Sterile surgical instruments including forceps, scissors, retractors, clamps, and complete surgical sets.</p>
+          </div>
+          <div class="product-card-footer">
+            <span><i class="fas fa-check-circle" style="color:var(--green);"></i> Available</span>
+            <a href="pricing.html"><span data-i18n="enquire_btn">Enquire Now</span> <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+
+        <!-- Hospital Consumables -->
+        <div class="product-card reveal reveal-delay-3" data-category="consumables">
+          <div class="product-card-img">
+            <span class="product-card-tag" data-i18n="filter_consumables">Consumables</span>
+            <i class="fas fa-box-open"></i>
+          </div>
+          <div class="product-card-body">
+            <h4>Hospital Consumables</h4>
+            <p>IV sets, catheters, syringes, needles, bandages, gauze, wound dressings, and other essential hospital consumables.</p>
+          </div>
+          <div class="product-card-footer">
+            <span><i class="fas fa-check-circle" style="color:var(--green);"></i> In Stock</span>
+            <a href="pricing.html"><span data-i18n="enquire_btn">Enquire Now</span> <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+
+        <!-- Laboratory Supplies -->
+        <div class="product-card reveal reveal-delay-1" data-category="consumables">
+          <div class="product-card-img">
+            <span class="product-card-tag" data-i18n="filter_consumables">Consumables</span>
+            <i class="fas fa-flask"></i>
+          </div>
+          <div class="product-card-body">
+            <h4>Laboratory Supplies</h4>
+            <p>Test tubes, reagents, culture media, specimen containers, pipettes, and complete laboratory consumable kits.</p>
+          </div>
+          <div class="product-card-footer">
+            <span><i class="fas fa-check-circle" style="color:var(--green);"></i> In Stock</span>
+            <a href="pricing.html"><span data-i18n="enquire_btn">Enquire Now</span> <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+
+        <!-- PPE -->
+        <div class="product-card reveal reveal-delay-2" data-category="ppe">
+          <div class="product-card-img">
+            <span class="product-card-tag" data-i18n="filter_ppe">PPE</span>
+            <i class="fas fa-shield-virus"></i>
+          </div>
+          <div class="product-card-body">
+            <h4>Personal Protective Equipment</h4>
+            <p>Medical gloves, surgical masks, N95 respirators, face shields, gowns, and full PPE kits for healthcare workers.</p>
+          </div>
+          <div class="product-card-footer">
+            <span><i class="fas fa-check-circle" style="color:var(--green);"></i> In Stock</span>
+            <a href="pricing.html"><span data-i18n="enquire_btn">Enquire Now</span> <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+
+        <!-- Hygiene Products -->
+        <div class="product-card reveal reveal-delay-3" data-category="hygiene">
+          <div class="product-card-img">
+            <span class="product-card-tag" data-i18n="filter_hygiene">Hygiene</span>
+            <i class="fas fa-pump-soap"></i>
+          </div>
+          <div class="product-card-body">
+            <h4>Medical Hygiene Products</h4>
+            <p>Antiseptic solutions, hand sanitizers, disinfectants, sterilization products, and medical-grade cleaning supplies.</p>
+          </div>
+          <div class="product-card-footer">
+            <span><i class="fas fa-check-circle" style="color:var(--green);"></i> In Stock</span>
+            <a href="pricing.html"><span data-i18n="enquire_btn">Enquire Now</span> <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+
+        <!-- Wound Care -->
+        <div class="product-card reveal reveal-delay-1" data-category="consumables">
+          <div class="product-card-img">
+            <span class="product-card-tag" data-i18n="filter_consumables">Consumables</span>
+            <i class="fas fa-bandage"></i>
+          </div>
+          <div class="product-card-body">
+            <h4>Wound Care Products</h4>
+            <p>Advanced wound dressings, adhesive bandages, sterile gauze, wound closure strips, and wound irrigation solutions.</p>
+          </div>
+          <div class="product-card-footer">
+            <span><i class="fas fa-check-circle" style="color:var(--green);"></i> In Stock</span>
+            <a href="pricing.html"><span data-i18n="enquire_btn">Enquire Now</span> <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+
+        <!-- Maternal & Child Health -->
+        <div class="product-card reveal reveal-delay-2" data-category="medicines">
+          <div class="product-card-img">
+            <span class="product-card-tag" data-i18n="filter_medicines">Medicines</span>
+            <i class="fas fa-baby"></i>
+          </div>
+          <div class="product-card-body">
+            <h4>Maternal & Child Health</h4>
+            <p>Prenatal vitamins, iron supplements, oral rehydration salts, pediatric medicines, and maternal health products.</p>
+          </div>
+          <div class="product-card-footer">
+            <span><i class="fas fa-check-circle" style="color:var(--green);"></i> In Stock</span>
+            <a href="pricing.html"><span data-i18n="enquire_btn">Enquire Now</span> <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+
+        <!-- Sterilization Products -->
+        <div class="product-card reveal reveal-delay-3" data-category="hygiene">
+          <div class="product-card-img">
+            <span class="product-card-tag" data-i18n="filter_hygiene">Hygiene</span>
+            <i class="fas fa-spray-can-sparkles"></i>
+          </div>
+          <div class="product-card-body">
+            <h4>Sterilization & Disinfection</h4>
+            <p>Autoclave supplies, sterilization pouches, surface disinfectants, and instrument sterilization solutions.</p>
+          </div>
+          <div class="product-card-footer">
+            <span><i class="fas fa-check-circle" style="color:var(--green);"></i> In Stock</span>
+            <a href="pricing.html"><span data-i18n="enquire_btn">Enquire Now</span> <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+
+        <!-- Protective Clothing -->
+        <div class="product-card reveal reveal-delay-1" data-category="ppe">
+          <div class="product-card-img">
+            <span class="product-card-tag" data-i18n="filter_ppe">PPE</span>
+            <i class="fas fa-user-shield"></i>
+          </div>
+          <div class="product-card-body">
+            <h4>Protective Clothing</h4>
+            <p>Disposable coveralls, surgical gowns, shoe covers, head covers, and full-body protective suits for clinical use.</p>
+          </div>
+          <div class="product-card-footer">
+            <span><i class="fas fa-check-circle" style="color:var(--green);"></i> In Stock</span>
+            <a href="pricing.html"><span data-i18n="enquire_btn">Enquire Now</span> <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- PRODUCTS CTA -->
+  <section class="cta-banner">
+    <div class="container reveal">
+      <h2 data-i18n="products_cta_title">Can't Find What You Need?</h2>
+      <p data-i18n="products_cta_text">Contact us or request a quote and our team will source the products you need.</p>
+      <div class="cta-actions">
+        <a href="pricing.html" class="btn btn-outline btn-lg">
+          <i class="fas fa-file-invoice"></i>
+          <span data-i18n="products_cta_btn">Request a Quote</span>
+        </a>
+        <a href="contact.html" class="btn btn-lg" style="background:rgba(255,255,255,0.15);color:white;border:2px solid rgba(255,255,255,0.4);">
+          <i class="fas fa-phone"></i>
+          <span data-i18n="cta_btn2">Contact Us Today</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="index.html" class="logo">
+            <div class="logo-icon">IM</div>
+            <div class="logo-text">
+              <span class="logo-name">Inyathi-Mz</span>
+              <span class="logo-tagline" style="color:rgba(255,255,255,0.5);">Medical Supplies</span>
+            </div>
+          </a>
+          <p data-i18n="footer_desc">Your trusted pharmaceutical and medical supply partner in Mozambique. Quality products, reliable delivery, and exceptional service.</p>
+          <div class="footer-social">
+            <a href="#" class="social-btn"><i class="fab fa-facebook-f"></i></a>
+            <a href="#" class="social-btn"><i class="fab fa-linkedin-in"></i></a>
+            <a href="#" class="social-btn"><i class="fab fa-whatsapp"></i></a>
+            <a href="mailto:inyathimz@gmail.com" class="social-btn"><i class="fas fa-envelope"></i></a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4 data-i18n="footer_links_title">Quick Links</h4>
+          <div class="footer-links">
+            <a href="index.html"><i class="fas fa-chevron-right"></i><span data-i18n="nav_home">Home</span></a>
+            <a href="about.html"><i class="fas fa-chevron-right"></i><span data-i18n="nav_about">About Us</span></a>
+            <a href="services.html"><i class="fas fa-chevron-right"></i><span data-i18n="nav_services">Services</span></a>
+            <a href="pricing.html"><i class="fas fa-chevron-right"></i><span data-i18n="nav_pricing">Pricing</span></a>
+            <a href="contact.html"><i class="fas fa-chevron-right"></i><span data-i18n="nav_contact">Contact</span></a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4 data-i18n="footer_products_title">Products</h4>
+          <div class="footer-links">
+            <a href="products.html"><i class="fas fa-chevron-right"></i><span data-i18n="footer_prod1">Prescription Medicines</span></a>
+            <a href="products.html"><i class="fas fa-chevron-right"></i><span data-i18n="footer_prod2">Medical Equipment</span></a>
+            <a href="products.html"><i class="fas fa-chevron-right"></i><span data-i18n="footer_prod3">Surgical Supplies</span></a>
+            <a href="products.html"><i class="fas fa-chevron-right"></i><span data-i18n="footer_prod4">Vaccines & Biologics</span></a>
+            <a href="products.html"><i class="fas fa-chevron-right"></i><span data-i18n="footer_prod5">PPE & Hygiene</span></a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4 data-i18n="footer_contact_title">Contact Us</h4>
+          <div class="footer-contact-list">
+            <div class="footer-contact-item"><i class="fas fa-location-dot"></i><span data-i18n="footer_address">Av. Emilia Dausse, nº.48, Mozambique</span></div>
+            <div class="footer-contact-item"><i class="fas fa-phone"></i><a href="tel:+258843941017" data-i18n="footer_phone">+258 84 394 1017</a></div>
+            <div class="footer-contact-item"><i class="fas fa-envelope"></i><a href="mailto:inyathimz@gmail.com" data-i18n="footer_email">inyathimz@gmail.com</a></div>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span data-i18n="footer_copy">© 2024 Inyathi-Mz. All rights reserved.</span>
+        <div style="display:flex;gap:1rem;">
+          <a href="#" data-i18n="footer_privacy">Privacy Policy</a>
+          <a href="#" data-i18n="footer_terms">Terms of Service</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <button class="back-to-top" aria-label="Back to top"><i class="fas fa-chevron-up"></i></button>
+  <script src="js/translations.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
