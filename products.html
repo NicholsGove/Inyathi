@@ -17,8 +17,11 @@
   <header class="site-header">
     <div class="container">
       <div class="header-inner">
+        <!-- Logo -->
         <a href="index.html" class="logo">
-          <div class="logo-icon">IM</div>
+          <div class="logo-icon">
+            <img src="images/logo.png" alt="Inyathi-Mz Logo" class="logo-img">
+          </div>
           <div class="logo-text">
             <span class="logo-name">Inyathi-Mz</span>
             <span class="logo-tagline">Medical Supplies</span>
@@ -37,6 +40,11 @@
             <button class="lang-btn active" data-lang="en">EN</button>
             <button class="lang-btn" data-lang="pt">PT</button>
           </div>
+          <a href="checkout.html" class="cart-nav-btn" id="cartNavBtn" aria-label="Open checkout">
+            <i class="fas fa-cart-shopping"></i>
+            <span>Cart</span>
+            <span class="cart-count-badge" id="cartCountBadge">0</span>
+          </a>
           <a href="pricing.html" class="btn btn-primary" data-i18n="nav_quote_btn">Request a Quote</a>
         </div>
         <button class="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
@@ -54,6 +62,11 @@
           <button class="lang-btn active" data-lang="en">EN</button>
           <button class="lang-btn" data-lang="pt">PT</button>
         </div>
+        <a href="checkout.html" class="cart-nav-btn" aria-label="Open checkout">
+          <i class="fas fa-cart-shopping"></i>
+          <span>Cart</span>
+          <span class="cart-count-badge" id="cartCountBadgeMobile">0</span>
+        </a>
         <a href="pricing.html" class="btn btn-primary" data-i18n="nav_quote_btn">Request a Quote</a>
       </div>
     </nav>
@@ -76,12 +89,13 @@
   <div class="products-filter">
     <div class="container">
       <div class="filter-tabs">
-        <button class="filter-tab active" data-filter="all" data-i18n="filter_all">All Products</button>
-        <button class="filter-tab" data-filter="medicines" data-i18n="filter_medicines">Medicines</button>
-        <button class="filter-tab" data-filter="equipment" data-i18n="filter_equipment">Equipment</button>
-        <button class="filter-tab" data-filter="consumables" data-i18n="filter_consumables">Consumables</button>
-        <button class="filter-tab" data-filter="hygiene" data-i18n="filter_hygiene">Hygiene</button>
-        <button class="filter-tab" data-filter="ppe" data-i18n="filter_ppe">PPE</button>
+        <button class="filter-tab active" data-filter="all" data-i18n="products_filter_all">All Products</button>
+        <button class="filter-tab" data-filter="soap-sanitisers" data-i18n="products_filter_soap_sanitisers">Soap &amp; Sanitisers</button>
+        <button class="filter-tab" data-filter="towel" data-i18n="products_filter_towel">Towel Dispensers</button>
+        <button class="filter-tab" data-filter="tissue" data-i18n="products_filter_tissue">Tissue Dispensers</button>
+        <button class="filter-tab" data-filter="dryers-fragrance" data-i18n="products_filter_dryers_fragrance">Dryers &amp; Fragrance</button>
+        <button class="filter-tab" data-filter="hygiene-systems" data-i18n="products_filter_hygiene_systems">Hygiene Systems</button>
+        <button class="filter-tab" data-filter="waste-ppe" data-i18n="products_filter_waste_ppe">Waste &amp; PPE</button>
       </div>
     </div>
   </div>
@@ -92,207 +106,211 @@
       <div class="text-center reveal" style="margin-bottom:1rem;">
         <span class="section-label" data-i18n="products_section_label">Product Catalogue</span>
         <h2 class="section-title" data-i18n="products_section_title">Explore Our Full Product Range</h2>
+        <p class="section-subtitle" style="margin:0.75rem auto 0;" data-i18n="products_section_subtitle">Click any category below to browse all individual products.</p>
+        <div class="products-checkout-cta">
+          <a href="checkout.html" class="btn btn-green btn-lg">
+            <i class="fas fa-credit-card"></i>
+            <span>Go to Checkout</span>
+          </a>
+        </div>
       </div>
 
       <div class="products-full-grid">
 
-       
-
-        <!-- Chronic Disease Treatments -->
-        <div class="product-card reveal reveal-delay-2" data-category="medicines">
-          <div class="product-card-img">
-            <span class="product-card-tag" data-i18n="filter_medicines">Medicines</span>
-            <i class="fas fa-heart-pulse"></i>
+        <!-- 1. Hand Soap Dispensers -->
+        <div class="product-cat-card-new reveal reveal-delay-1" data-category="soap-sanitisers" data-catalogue="soap">
+          <div class="pcat-icon-wrap" style="background:linear-gradient(135deg,rgba(21,101,192,0.12),rgba(21,101,192,0.06));">
+            <i class="fas fa-pump-soap" style="color:#1565c0;"></i>
           </div>
-          <div class="product-card-body">
-            <h4>Chronic Disease Treatments</h4>
-            <p>Medications for diabetes, hypertension, cardiovascular disease, HIV/AIDS, tuberculosis, and other chronic conditions.</p>
+          <div class="pcat-body">
+            <h4>Hand Soap Dispensers</h4>
+            <p>Pearl, Excel, Betasan &amp; Top Up ranges</p>
+            <span class="pcat-count"><i class="fas fa-box"></i> 9 Products</span>
           </div>
-          <div class="product-card-footer">
-            <span><i class="fas fa-check-circle" style="color:var(--green);"></i> In Stock</span>
-            <a href="pricing.html"><span data-i18n="enquire_btn">Enquire Now</span> <i class="fas fa-arrow-right"></i></a>
-          </div>
+          <div class="pcat-arrow"><i class="fas fa-chevron-right"></i></div>
         </div>
 
-        <!-- Pain Management -->
-        <div class="product-card reveal reveal-delay-3" data-category="medicines">
-          <div class="product-card-img">
-            <span class="product-card-tag" data-i18n="filter_medicines">Medicines</span>
-            <i class="fas fa-hand-holding-medical"></i>
+        <!-- 2. Hand Sanitisers -->
+        <div class="product-cat-card-new reveal reveal-delay-2" data-category="soap-sanitisers" data-catalogue="sanitisers">
+          <div class="pcat-icon-wrap" style="background:linear-gradient(135deg,rgba(56,142,60,0.12),rgba(56,142,60,0.06));">
+            <i class="fas fa-hand-sparkles" style="color:#388e3c;"></i>
           </div>
-          <div class="product-card-body">
-            <h4>Pain Management</h4>
-            <p>Analgesics, NSAIDs, opioid analgesics, and topical pain relief products for acute and chronic pain management.</p>
+          <div class="pcat-body">
+            <h4>Hand Sanitisers</h4>
+            <p>Countertop, free-standing &amp; sensor dispensers</p>
+            <span class="pcat-count"><i class="fas fa-box"></i> 4 Products</span>
           </div>
-          <div class="product-card-footer">
-            <span><i class="fas fa-check-circle" style="color:var(--green);"></i> In Stock</span>
-            <a href="pricing.html"><span data-i18n="enquire_btn">Enquire Now</span> <i class="fas fa-arrow-right"></i></a>
-          </div>
+          <div class="pcat-arrow"><i class="fas fa-chevron-right"></i></div>
         </div>
 
-        <!-- Diagnostic Equipment -->
-        <div class="product-card reveal reveal-delay-1" data-category="equipment">
-          <div class="product-card-img">
-            <span class="product-card-tag" data-i18n="filter_equipment">Equipment</span>
-            <i class="fas fa-microscope"></i>
+        <!-- 3. Roll Towel Dispensers -->
+        <div class="product-cat-card-new reveal reveal-delay-3" data-category="towel" data-catalogue="roll-towel">
+          <div class="pcat-icon-wrap" style="background:linear-gradient(135deg,rgba(0,172,193,0.12),rgba(0,172,193,0.06));">
+            <i class="fas fa-scroll" style="color:#00acc1;"></i>
           </div>
-          <div class="product-card-body">
-            <h4>Diagnostic Equipment</h4>
-            <p>Blood glucose monitors, blood pressure devices, pulse oximeters, thermometers, and laboratory diagnostic tools.</p>
+          <div class="pcat-body">
+            <h4>Roll Towel Dispensers</h4>
+            <p>Pearl, Excel &amp; Centrepull ranges</p>
+            <span class="pcat-count"><i class="fas fa-box"></i> 7 Products</span>
           </div>
-          <div class="product-card-footer">
-            <span><i class="fas fa-check-circle" style="color:var(--green);"></i> Available</span>
-            <a href="pricing.html"><span data-i18n="enquire_btn">Enquire Now</span> <i class="fas fa-arrow-right"></i></a>
-          </div>
+          <div class="pcat-arrow"><i class="fas fa-chevron-right"></i></div>
         </div>
 
-        <!-- Surgical Instruments -->
-        <div class="product-card reveal reveal-delay-2" data-category="equipment">
-          <div class="product-card-img">
-            <span class="product-card-tag" data-i18n="filter_equipment">Equipment</span>
-            <i class="fas fa-scalpel"></i>
+        <!-- 4. Folded Towel Dispensers -->
+        <div class="product-cat-card-new reveal reveal-delay-1" data-category="towel" data-catalogue="folded-towel">
+          <div class="pcat-icon-wrap" style="background:linear-gradient(135deg,rgba(123,31,162,0.12),rgba(123,31,162,0.06));">
+            <i class="fas fa-layer-group" style="color:#7b1fa2;"></i>
           </div>
-          <div class="product-card-body">
-            <h4>Surgical Instruments</h4>
-            <p>Sterile surgical instruments including forceps, scissors, retractors, clamps, and complete surgical sets.</p>
+          <div class="pcat-body">
+            <h4>Folded Towel Dispensers</h4>
+            <p>Pearl Compact &amp; Excel Slimline</p>
+            <span class="pcat-count"><i class="fas fa-box"></i> 3 Products</span>
           </div>
-          <div class="product-card-footer">
-            <span><i class="fas fa-check-circle" style="color:var(--green);"></i> Available</span>
-            <a href="pricing.html"><span data-i18n="enquire_btn">Enquire Now</span> <i class="fas fa-arrow-right"></i></a>
-          </div>
+          <div class="pcat-arrow"><i class="fas fa-chevron-right"></i></div>
         </div>
 
-        <!-- Hospital Consumables -->
-        <div class="product-card reveal reveal-delay-3" data-category="consumables">
-          <div class="product-card-img">
-            <span class="product-card-tag" data-i18n="filter_consumables">Consumables</span>
-            <i class="fas fa-box-open"></i>
+        <!-- 5. Toilet Tissue Dispensers -->
+        <div class="product-cat-card-new reveal reveal-delay-2" data-category="tissue" data-catalogue="tissue">
+          <div class="pcat-icon-wrap" style="background:linear-gradient(135deg,rgba(230,81,0,0.12),rgba(230,81,0,0.06));">
+            <i class="fas fa-toilet-paper" style="color:#e65100;"></i>
           </div>
-          <div class="product-card-body">
-            <h4>Hospital Consumables</h4>
-            <p>IV sets, catheters, syringes, needles, bandages, gauze, wound dressings, and other essential hospital consumables.</p>
+          <div class="pcat-body">
+            <h4>Toilet Tissue Dispensers</h4>
+            <p>TR Units, SFX, Pearl &amp; Excel JTR ranges</p>
+            <span class="pcat-count"><i class="fas fa-box"></i> 5 Products</span>
           </div>
-          <div class="product-card-footer">
-            <span><i class="fas fa-check-circle" style="color:var(--green);"></i> In Stock</span>
-            <a href="pricing.html"><span data-i18n="enquire_btn">Enquire Now</span> <i class="fas fa-arrow-right"></i></a>
-          </div>
+          <div class="pcat-arrow"><i class="fas fa-chevron-right"></i></div>
         </div>
 
-        <!-- Laboratory Supplies -->
-        <div class="product-card reveal reveal-delay-1" data-category="consumables">
-          <div class="product-card-img">
-            <span class="product-card-tag" data-i18n="filter_consumables">Consumables</span>
-            <i class="fas fa-flask"></i>
+        <!-- 6. Hot Air Dryers -->
+        <div class="product-cat-card-new reveal reveal-delay-3" data-category="dryers-fragrance" data-catalogue="dryers">
+          <div class="pcat-icon-wrap" style="background:linear-gradient(135deg,rgba(2,136,209,0.12),rgba(2,136,209,0.06));">
+            <i class="fas fa-wind" style="color:#0288d1;"></i>
           </div>
-          <div class="product-card-body">
-            <h4>Laboratory Supplies</h4>
-            <p>Test tubes, reagents, culture media, specimen containers, pipettes, and complete laboratory consumable kits.</p>
+          <div class="pcat-body">
+            <h4>Hot Air Dryers</h4>
+            <p>Quartz Fastdry, E-Dry, R8 &amp; V-Dry</p>
+            <span class="pcat-count"><i class="fas fa-box"></i> 4 Products</span>
           </div>
-          <div class="product-card-footer">
-            <span><i class="fas fa-check-circle" style="color:var(--green);"></i> In Stock</span>
-            <a href="pricing.html"><span data-i18n="enquire_btn">Enquire Now</span> <i class="fas fa-arrow-right"></i></a>
-          </div>
+          <div class="pcat-arrow"><i class="fas fa-chevron-right"></i></div>
         </div>
 
-        <!-- PPE -->
-        <div class="product-card reveal reveal-delay-2" data-category="ppe">
-          <div class="product-card-img">
-            <span class="product-card-tag" data-i18n="filter_ppe">PPE</span>
-            <i class="fas fa-shield-virus"></i>
+        <!-- 7. Fragrance Systems -->
+        <div class="product-cat-card-new reveal reveal-delay-1" data-category="dryers-fragrance" data-catalogue="fragrance">
+          <div class="pcat-icon-wrap" style="background:linear-gradient(135deg,rgba(194,24,91,0.12),rgba(194,24,91,0.06));">
+            <i class="fas fa-spray-can" style="color:#c2185b;"></i>
           </div>
-          <div class="product-card-body">
-            <h4>Personal Protective Equipment</h4>
-            <p>Medical gloves, surgical masks, N95 respirators, face shields, gowns, and full PPE kits for healthcare workers.</p>
+          <div class="pcat-body">
+            <h4>Fragrance Systems</h4>
+            <p>Pearl &amp; Excel Airmist + 7 refill scents</p>
+            <span class="pcat-count"><i class="fas fa-box"></i> 10 Products</span>
           </div>
-          <div class="product-card-footer">
-            <span><i class="fas fa-check-circle" style="color:var(--green);"></i> In Stock</span>
-            <a href="pricing.html"><span data-i18n="enquire_btn">Enquire Now</span> <i class="fas fa-arrow-right"></i></a>
-          </div>
+          <div class="pcat-arrow"><i class="fas fa-chevron-right"></i></div>
         </div>
 
-        <!-- Hygiene Products -->
-        <div class="product-card reveal reveal-delay-3" data-category="hygiene">
-          <div class="product-card-img">
-            <span class="product-card-tag" data-i18n="filter_hygiene">Hygiene</span>
-            <i class="fas fa-pump-soap"></i>
+        <!-- 8. Urinal Hygiene -->
+        <div class="product-cat-card-new reveal reveal-delay-2" data-category="hygiene-systems" data-catalogue="urinal">
+          <div class="pcat-icon-wrap" style="background:linear-gradient(135deg,rgba(0,105,92,0.12),rgba(0,105,92,0.06));">
+            <i class="fas fa-restroom" style="color:#00695c;"></i>
           </div>
-          <div class="product-card-body">
-            <h4>Medical Hygiene Products</h4>
-            <p>Antiseptic solutions, hand sanitizers, disinfectants, sterilization products, and medical-grade cleaning supplies.</p>
+          <div class="pcat-body">
+            <h4>Urinal Hygiene</h4>
+            <p>Autosan units &amp; urinal screens</p>
+            <span class="pcat-count"><i class="fas fa-box"></i> 4 Products</span>
           </div>
-          <div class="product-card-footer">
-            <span><i class="fas fa-check-circle" style="color:var(--green);"></i> In Stock</span>
-            <a href="pricing.html"><span data-i18n="enquire_btn">Enquire Now</span> <i class="fas fa-arrow-right"></i></a>
-          </div>
+          <div class="pcat-arrow"><i class="fas fa-chevron-right"></i></div>
         </div>
 
-        <!-- Wound Care -->
-        <div class="product-card reveal reveal-delay-1" data-category="consumables">
-          <div class="product-card-img">
-            <span class="product-card-tag" data-i18n="filter_consumables">Consumables</span>
-            <i class="fas fa-bandage"></i>
+        <!-- 9. Seat Sanitisers -->
+        <div class="product-cat-card-new reveal reveal-delay-3" data-category="hygiene-systems" data-catalogue="seat">
+          <div class="pcat-icon-wrap" style="background:linear-gradient(135deg,rgba(21,101,192,0.12),rgba(21,101,192,0.06));">
+            <i class="fas fa-toilet" style="color:#1565c0;"></i>
           </div>
-          <div class="product-card-body">
-            <h4>Wound Care Products</h4>
-            <p>Advanced wound dressings, adhesive bandages, sterile gauze, wound closure strips, and wound irrigation solutions.</p>
+          <div class="pcat-body">
+            <h4>Seat Sanitisers</h4>
+            <p>Pearl &amp; Excel Seatsan dispensers</p>
+            <span class="pcat-count"><i class="fas fa-box"></i> 3 Products</span>
           </div>
-          <div class="product-card-footer">
-            <span><i class="fas fa-check-circle" style="color:var(--green);"></i> In Stock</span>
-            <a href="pricing.html"><span data-i18n="enquire_btn">Enquire Now</span> <i class="fas fa-arrow-right"></i></a>
-          </div>
+          <div class="pcat-arrow"><i class="fas fa-chevron-right"></i></div>
         </div>
 
-        <!-- Maternal & Child Health -->
-        <div class="product-card reveal reveal-delay-2" data-category="medicines">
-          <div class="product-card-img">
-            <span class="product-card-tag" data-i18n="filter_medicines">Medicines</span>
-            <i class="fas fa-baby"></i>
+        <!-- 10. Sanitary Disposal -->
+        <div class="product-cat-card-new reveal reveal-delay-1" data-category="hygiene-systems" data-catalogue="sanitary">
+          <div class="pcat-icon-wrap" style="background:linear-gradient(135deg,rgba(109,76,65,0.12),rgba(109,76,65,0.06));">
+            <i class="fas fa-trash-can" style="color:#6d4c41;"></i>
           </div>
-          <div class="product-card-body">
-            <h4>Maternal & Child Health</h4>
-            <p>Prenatal vitamins, iron supplements, oral rehydration salts, pediatric medicines, and maternal health products.</p>
+          <div class="pcat-body">
+            <h4>Sanitary Disposal</h4>
+            <p>Excel &amp; Pearl Femcare bins</p>
+            <span class="pcat-count"><i class="fas fa-box"></i> 4 Products</span>
           </div>
-          <div class="product-card-footer">
-            <span><i class="fas fa-check-circle" style="color:var(--green);"></i> In Stock</span>
-            <a href="pricing.html"><span data-i18n="enquire_btn">Enquire Now</span> <i class="fas fa-arrow-right"></i></a>
-          </div>
+          <div class="pcat-arrow"><i class="fas fa-chevron-right"></i></div>
         </div>
 
-        <!-- Sterilization Products -->
-        <div class="product-card reveal reveal-delay-3" data-category="hygiene">
-          <div class="product-card-img">
-            <span class="product-card-tag" data-i18n="filter_hygiene">Hygiene</span>
-            <i class="fas fa-spray-can-sparkles"></i>
+        <!-- 11. Waste Bins -->
+        <div class="product-cat-card-new reveal reveal-delay-2" data-category="waste-ppe" data-catalogue="waste">
+          <div class="pcat-icon-wrap" style="background:linear-gradient(135deg,rgba(69,90,100,0.12),rgba(69,90,100,0.06));">
+            <i class="fas fa-dumpster" style="color:#455a64;"></i>
           </div>
-          <div class="product-card-body">
-            <h4>Sterilization & Disinfection</h4>
-            <p>Autoclave supplies, sterilization pouches, surface disinfectants, and instrument sterilization solutions.</p>
+          <div class="pcat-body">
+            <h4>Waste Bins</h4>
+            <p>Excel Wastecare &amp; Eco Wall Bins</p>
+            <span class="pcat-count"><i class="fas fa-box"></i> 3 Products</span>
           </div>
-          <div class="product-card-footer">
-            <span><i class="fas fa-check-circle" style="color:var(--green);"></i> In Stock</span>
-            <a href="pricing.html"><span data-i18n="enquire_btn">Enquire Now</span> <i class="fas fa-arrow-right"></i></a>
-          </div>
+          <div class="pcat-arrow"><i class="fas fa-chevron-right"></i></div>
         </div>
 
-        <!-- Protective Clothing -->
-        <div class="product-card reveal reveal-delay-1" data-category="ppe">
-          <div class="product-card-img">
-            <span class="product-card-tag" data-i18n="filter_ppe">PPE</span>
-            <i class="fas fa-user-shield"></i>
+        <!-- 12. PPE & Other Products -->
+        <div class="product-cat-card-new reveal reveal-delay-3" data-category="waste-ppe" data-catalogue="ppe">
+          <div class="pcat-icon-wrap" style="background:linear-gradient(135deg,rgba(46,125,50,0.12),rgba(46,125,50,0.06));">
+            <i class="fas fa-shield-halved" style="color:#2e7d32;"></i>
           </div>
-          <div class="product-card-body">
-            <h4>Protective Clothing</h4>
-            <p>Disposable coveralls, surgical gowns, shoe covers, head covers, and full-body protective suits for clinical use.</p>
+          <div class="pcat-body">
+            <h4>PPE &amp; Other Products</h4>
+            <p>Nitrile gloves, mop caps &amp; more</p>
+            <span class="pcat-count"><i class="fas fa-box"></i> 4 Products</span>
           </div>
-          <div class="product-card-footer">
-            <span><i class="fas fa-check-circle" style="color:var(--green);"></i> In Stock</span>
-            <a href="pricing.html"><span data-i18n="enquire_btn">Enquire Now</span> <i class="fas fa-arrow-right"></i></a>
-          </div>
+          <div class="pcat-arrow"><i class="fas fa-chevron-right"></i></div>
         </div>
 
       </div>
     </div>
   </section>
+
+  <!-- ============================================================
+       PRODUCT CATALOGUE MODAL
+       Opens when a category card is clicked
+  ============================================================ -->
+  <div class="catalogue-modal" id="catalogueModal" role="dialog" aria-modal="true" aria-labelledby="catalogueModalTitle">
+    <div class="catalogue-modal-backdrop" id="catalogueModalBackdrop"></div>
+    <div class="catalogue-modal-panel">
+      <!-- Modal Header -->
+      <div class="catalogue-modal-header">
+        <div class="catalogue-modal-title-wrap">
+          <div class="catalogue-modal-icon-wrap" id="catalogueModalIconWrap">
+            <i class="fas fa-pump-soap" id="catalogueModalIcon"></i>
+          </div>
+          <div>
+            <p class="catalogue-modal-label" data-i18n="products_modal_label">Product Catalogue</p>
+            <h2 id="catalogueModalTitle">Hand Soap Dispensers</h2>
+          </div>
+        </div>
+        <button class="catalogue-modal-close" id="catalogueModalClose" aria-label="Close" data-i18n-aria-label="products_modal_close_aria">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <!-- Modal Body -->
+      <div class="catalogue-modal-body">
+        <div class="catalogue-products-grid" id="catalogueProductsGrid">
+          <!-- Products are rendered dynamically by main.js -->
+        </div>
+      </div>
+      <!-- Modal Footer -->
+      <div class="catalogue-modal-footer">
+        <p><i class="fas fa-info-circle"></i> <span data-i18n="products_modal_footer_text">Can't find what you need?</span> <a href="pricing.html" data-i18n="products_modal_footer_link">Request a custom quote</a></p>
+      </div>
+    </div>
+  </div>
 
   <!-- PRODUCTS CTA -->
   <section class="cta-banner">
@@ -362,7 +380,7 @@
         </div>
       </div>
       <div class="footer-bottom">
-        <span data-i18n="footer_copy">© 2024 Inyathi-Mz. All rights reserved.</span>
+        <span data-i18n="footer_copy">© 2026 Inyathi-Mz. All rights reserved.</span>
         <div style="display:flex;gap:1rem;">
           <a href="#" data-i18n="footer_privacy">Privacy Policy</a>
           <a href="#" data-i18n="footer_terms">Terms of Service</a>
