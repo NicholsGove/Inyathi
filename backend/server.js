@@ -26,8 +26,13 @@ app.use(express.urlencoded({ extended: true }));
 
 // ── Serve static frontend files ───────────────────────────────
 // Serves index.html, about.html, products.html, etc. from the
-// /frontend directory (one level up from /backend, then into /frontend)
-app.use(express.static(path.join(__dirname, '../frontend')));
+// project root (one level up from /backend)
+app.use(express.static(path.join(__dirname, '..')));
+
+// Root route fallback
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '../index.html'));
+});
 
 // ── API Routes ────────────────────────────────────────────────
 app.use('/api/contact',  contactRoutes);
@@ -59,7 +64,7 @@ app.listen(PORT, () => {
   console.log('');
   console.log('╔══════════════════════════════════════════════╗');
   console.log('║   Inyathi-Mz Backend Server                  ║');
-  console.log(`║   Running at: http://localhost:${PORT}           ║`);
+  console.log(`║   Running at: http://localhost:${PORT}          ║`);
   console.log('╠══════════════════════════════════════════════╣');
   console.log('║   API Endpoints:                             ║');
   console.log('║   GET  /api/health                           ║');

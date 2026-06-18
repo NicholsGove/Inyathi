@@ -3,7 +3,9 @@
 // ============================================================
 const express  = require('express');
 const { body, validationResult } = require('express-validator');
-const db       = require('../db');
+const db             = require('../db');
+const { generateQuotePDF } = require('../services/pdfService');
+const { sendQuoteEmail }   = require('../services/emailService');
 
 const router = express.Router();
 
@@ -132,6 +134,29 @@ router.post('/', quoteValidation, async (req, res) => {
         quote_reference,
       ]
     );
+
+    // 4. Build the full quote data object for PDF & email
+    const quoteData = {
+      full_name,
+      institution,
+      email,
+      phone,
+      product_category,
+      estimated_quantity: estimated_quantity || null,
+      product_details,
+      quote_reference,
+      created_at: now,
+    };
+
+    // 5. Generate PDF & send email (non-blocking — don't fail the request if email fails)
+    setImmediate(async () => {
+      try {
+        const pdfBuffer = await generateQuotePDF(quoteData);
+        await sendQuoteEmail(quoteData, pdfBuffer);
+      } catch (emailErr) {
+        console.error('⚠️  Quote email/PDF error (non-fatal):', emailErr.message);
+      }
+    });
 
     return res.status(201).json({
       success:         true,

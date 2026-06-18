@@ -130,7 +130,7 @@ const translations = {
     footer_address:   "Av. Emilia Dausse, nº.48, Mozambique",
     footer_phone:     "+258 84 394 1017",
     footer_email:     "inyathimz@gmail.com",
-    footer_copy:      "© 2024 Inyathi-Mz. All rights reserved.",
+    footer_copy:      "© 2026 Inyathi-Mz. All rights reserved.",
     footer_privacy:   "Privacy Policy",
     footer_terms:     "Terms of Service",
 
@@ -472,7 +472,7 @@ const translations = {
     footer_address:   "Av. Emilia Dausse, nº.48, Moçambique",
     footer_phone:     "+258 84 394 1017",
     footer_email:     "inyathimz@gmail.com",
-    footer_copy:      "© 2024 Inyathi-Mz. Todos os direitos reservados.",
+    footer_copy:      "© 2026 Inyathi-Mz. Todos os direitos reservados.",
     footer_privacy:   "Política de Privacidade",
     footer_terms:     "Termos de Serviço",
 

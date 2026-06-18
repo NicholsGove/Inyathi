@@ -22,8 +22,6 @@ router.get('/', async (req, res) => {
         pr.description_pt,
         pr.icon_class,
         pr.stock_status,
-        pr.requires_cold_chain,
-        pr.requires_prescription,
         pr.is_featured
       FROM products pr
       JOIN product_categories pc ON pc.id = pr.category_id

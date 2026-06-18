@@ -3,7 +3,8 @@
 // ============================================================
 const express  = require('express');
 const { body, validationResult } = require('express-validator');
-const db       = require('../db');
+const db                   = require('../db');
+const { sendContactEmail } = require('../services/emailService');
 
 const router = express.Router();
 
@@ -77,6 +78,22 @@ router.post('/', contactValidation, async (req, res) => {
         user_agent,
       ]
     );
+
+    // 2. Send email notification (non-blocking — don't fail the request if email fails)
+    setImmediate(async () => {
+      try {
+        await sendContactEmail({
+          full_name:   full_name,
+          institution: institution || null,
+          email:       email,
+          phone:       phone       || null,
+          subject:     subject,
+          message:     message,
+        });
+      } catch (emailErr) {
+        console.error('⚠️  Contact email error (non-fatal):', emailErr.message);
+      }
+    });
 
     return res.status(201).json({
       success: true,

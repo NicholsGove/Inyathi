@@ -1,24 +1,56 @@
 // ============================================================
-// INYATHI-MZ — Main JavaScript
+// INYATHI-MZ — Main JavaScript (v2 — full redesign)
+// Adds toast notifications, real-time form validation, search,
+// cart-bump animation, smarter mobile nav, smoother reveals.
 // ============================================================
 
 document.addEventListener('DOMContentLoaded', function () {
 
-  // ── API BASE URL RESOLVER ───────────────────────────────
-  // - If served by backend (http://localhost:3000), use same-origin
-  // - If opened as static file (file://) or different port, fallback to backend default
+  /* ── API BASE URL RESOLVER ──────────────────────────────── */
   const API_BASE = (() => {
     const { protocol, hostname, port, origin } = window.location;
     const isLocalFile = protocol === 'file:';
     const isBackendOrigin = (hostname === 'localhost' || hostname === '127.0.0.1') && port === '3000';
     if (isLocalFile) return 'http://localhost:3000';
     if (isBackendOrigin) return origin;
-    return origin; // keep same-origin for deployed environments
+    return origin;
   })();
-
   const apiUrl = (path) => `${API_BASE}${path}`;
 
-  // ── CART STATE + HELPERS ────────────────────────────────
+  /* ── TOAST NOTIFICATIONS ────────────────────────────────── */
+  const toastContainer = (() => {
+    let c = document.querySelector('.toast-container');
+    if (!c) {
+      c = document.createElement('div');
+      c.className = 'toast-container';
+      document.body.appendChild(c);
+    }
+    return c;
+  })();
+
+  function toast(message, type = 'info', duration = 3500) {
+    const iconMap = {
+      success: 'fa-circle-check',
+      error:   'fa-circle-exclamation',
+      info:    'fa-circle-info',
+    };
+    const el = document.createElement('div');
+    el.className = `toast toast-${type}`;
+    el.innerHTML = `
+      <i class="toast-icon fas ${iconMap[type] || iconMap.info}"></i>
+      <span>${message}</span>
+      <button type="button" class="toast-close" aria-label="Close"><i class="fas fa-times"></i></button>
+    `;
+    toastContainer.appendChild(el);
+    const remove = () => {
+      el.classList.add('toast-out');
+      setTimeout(() => el.remove(), 240);
+    };
+    el.querySelector('.toast-close').addEventListener('click', remove);
+    if (duration > 0) setTimeout(remove, duration);
+  }
+
+  /* ── CART STATE + HELPERS ───────────────────────────────── */
   const CART_STORAGE_KEY = 'inyathi_cart_items';
   const QUOTE_CART_TRANSFER_KEY = 'inyathi_quote_cart_transfer';
 
@@ -53,7 +85,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const items = getCartItems();
     const idx = items.findIndex(item => item.id === cartProduct.id);
 
-
     if (idx >= 0) {
       items[idx].quantity += qty;
     } else {
@@ -61,7 +92,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     saveCartItems(items);
-    updateCartCountBadges();
+    updateCartCountBadges(true);
   }
 
   function getCartTotalCount() {
@@ -80,12 +111,18 @@ document.addEventListener('DOMContentLoaded', function () {
     return `MZN ${Number(amount || 0).toFixed(2)}`;
   }
 
-  function updateCartCountBadges() {
+  function updateCartCountBadges(bump = false) {
     const total = getCartTotalCount();
-    const desktopBadge = document.getElementById('cartCountBadge');
-    const mobileBadge = document.getElementById('cartCountBadgeMobile');
-    if (desktopBadge) desktopBadge.textContent = String(total);
-    if (mobileBadge) mobileBadge.textContent = String(total);
+    document.querySelectorAll('.cart-count-badge').forEach(badge => {
+      badge.textContent = String(total);
+      if (bump) {
+        badge.classList.remove('bump');
+        // restart animation
+        // eslint-disable-next-line no-unused-expressions
+        void badge.offsetWidth;
+        badge.classList.add('bump');
+      }
+    });
   }
 
   function removeFromCart(id) {
@@ -93,7 +130,8 @@ document.addEventListener('DOMContentLoaded', function () {
     items = items.filter(item => item.id !== id);
     saveCartItems(items);
     updateCartCountBadges();
-    renderCheckoutCart(); // refresh the UI
+    renderCheckoutCart();
+    toast('Item removed from cart.', 'info', 2200);
   }
 
   function buildQuoteCartSummary(items, paymentMethodLabel) {
@@ -107,680 +145,324 @@ document.addEventListener('DOMContentLoaded', function () {
     ].join('\n');
   }
 
-  // ── 1. LANGUAGE TOGGLE ──────────────────────────────────
-  const langBtns = document.querySelectorAll('.lang-btn');
-  langBtns.forEach(btn => {
+  /* ── 1. LANGUAGE TOGGLE ─────────────────────────────────── */
+  document.querySelectorAll('.lang-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const lang = btn.getAttribute('data-lang');
       applyTranslations(lang);
       document.dispatchEvent(new CustomEvent('inyathi:languageChanged', { detail: { lang } }));
     });
   });
-
-  // Apply saved language on load
   applyTranslations(currentLang);
 
-  // ── 2. STICKY HEADER ────────────────────────────────────
+  /* ── 2. STICKY HEADER ───────────────────────────────────── */
   const header = document.querySelector('.site-header');
   if (header) {
-    window.addEventListener('scroll', () => {
-      header.classList.toggle('scrolled', window.scrollY > 20);
-    });
+    const onScroll = () => header.classList.toggle('scrolled', window.scrollY > 12);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
   }
 
-  // ── 3. MOBILE HAMBURGER MENU ────────────────────────────
+  /* ── 3. MOBILE HAMBURGER MENU ───────────────────────────── */
   const hamburger = document.querySelector('.hamburger');
   const mobileNav = document.querySelector('.mobile-nav');
 
-  if (hamburger && mobileNav) {
-    hamburger.addEventListener('click', () => {
-      hamburger.classList.toggle('open');
-      mobileNav.classList.toggle('open');
-    });
-
-    // Close mobile nav when a link is clicked
-    mobileNav.querySelectorAll('.nav-link').forEach(link => {
-      link.addEventListener('click', () => {
-        hamburger.classList.remove('open');
-        mobileNav.classList.remove('open');
-      });
-    });
-
-    // Close on outside click
-    document.addEventListener('click', (e) => {
-      if (!header.contains(e.target)) {
-        hamburger.classList.remove('open');
-        mobileNav.classList.remove('open');
-      }
-    });
+  function closeMobileNav() {
+    if (!hamburger || !mobileNav) return;
+    hamburger.classList.remove('open');
+    hamburger.setAttribute('aria-expanded', 'false');
+    mobileNav.classList.remove('open');
+    document.body.classList.remove('menu-open');
   }
 
-  // ── 4. ACTIVE NAV LINK ──────────────────────────────────
-  const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+  if (hamburger && mobileNav) {
+    hamburger.setAttribute('aria-expanded', 'false');
+    hamburger.setAttribute('aria-controls', 'primary-mobile-nav');
+    mobileNav.id = mobileNav.id || 'primary-mobile-nav';
+
+    hamburger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const willOpen = !mobileNav.classList.contains('open');
+      hamburger.classList.toggle('open', willOpen);
+      mobileNav.classList.toggle('open', willOpen);
+      hamburger.setAttribute('aria-expanded', String(willOpen));
+      document.body.classList.toggle('menu-open', willOpen);
+    });
+
+    mobileNav.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', closeMobileNav);
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!header.contains(e.target) && mobileNav.classList.contains('open')) {
+        closeMobileNav();
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && mobileNav.classList.contains('open')) closeMobileNav();
+    });
+
+    // close menu when viewport widens past breakpoint
+    const mql = window.matchMedia('(min-width: 921px)');
+    mql.addEventListener?.('change', e => { if (e.matches) closeMobileNav(); });
+  }
+
+  /* ── 4. ACTIVE NAV LINK ─────────────────────────────────── */
+  const currentPage = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
   document.querySelectorAll('.nav-link').forEach(link => {
-    const href = link.getAttribute('href');
+    const href = (link.getAttribute('href') || '').toLowerCase();
     if (href === currentPage || (currentPage === '' && href === 'index.html')) {
       link.classList.add('active');
     }
   });
 
-  // ── 5. SCROLL REVEAL ANIMATIONS ─────────────────────────
-  const revealElements = document.querySelectorAll('.reveal');
-  if (revealElements.length > 0) {
-    const revealObserver = new IntersectionObserver((entries) => {
+  /* ── 5. SCROLL REVEAL ANIMATIONS ────────────────────────── */
+  const revealEls = document.querySelectorAll('.reveal');
+  if (revealEls.length > 0 && 'IntersectionObserver' in window) {
+    const obs = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           entry.target.classList.add('visible');
-          revealObserver.unobserve(entry.target);
+          obs.unobserve(entry.target);
         }
       });
     }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
-
-    revealElements.forEach(el => revealObserver.observe(el));
+    revealEls.forEach(el => obs.observe(el));
+  } else {
+    // fallback: just show everything
+    revealEls.forEach(el => el.classList.add('visible'));
   }
 
-  // ── 6. BACK TO TOP BUTTON ───────────────────────────────
+  /* ── 6. BACK TO TOP ─────────────────────────────────────── */
   const backToTop = document.querySelector('.back-to-top');
   if (backToTop) {
-    window.addEventListener('scroll', () => {
-      backToTop.classList.toggle('visible', window.scrollY > 400);
-    });
-    backToTop.addEventListener('click', () => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
+    const onScrollBtt = () => backToTop.classList.toggle('visible', window.scrollY > 400);
+    window.addEventListener('scroll', onScrollBtt, { passive: true });
+    backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
   }
 
-  // ── 7. COUNTER ANIMATION ────────────────────────────────
+  /* ── 7. ANIMATED COUNTERS ───────────────────────────────── */
   function animateCounter(el, target, duration = 1800) {
     const isPercent = target.includes('%');
     const isPlus    = target.includes('+');
-    const num       = parseInt(target.replace(/[^0-9]/g, ''));
-    let start = 0;
-    const step = Math.ceil(num / (duration / 16));
-    const timer = setInterval(() => {
-      start += step;
-      if (start >= num) {
-        start = num;
-        clearInterval(timer);
-      }
-      el.textContent = start + (isPlus ? '+' : '') + (isPercent ? '%' : '');
-    }, 16);
+    const num       = parseInt(target.replace(/[^0-9]/g, ''), 10);
+    if (Number.isNaN(num)) return;
+    const start = performance.now();
+    function tick(now) {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      const value = Math.round(num * eased);
+      el.textContent = value + (isPlus ? '+' : '') + (isPercent ? '%' : '');
+      if (t < 1) requestAnimationFrame(tick);
+      else el.textContent = num + (isPlus ? '+' : '') + (isPercent ? '%' : '');
+    }
+    requestAnimationFrame(tick);
   }
-
   const statNums = document.querySelectorAll('.stat-num[data-target]');
-  if (statNums.length > 0) {
+  if (statNums.length > 0 && 'IntersectionObserver' in window) {
     const statsObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
-          const el     = entry.target;
-          const target = el.getAttribute('data-target');
-          animateCounter(el, target);
-          statsObserver.unobserve(el);
+          animateCounter(entry.target, entry.target.getAttribute('data-target'));
+          statsObserver.unobserve(entry.target);
         }
       });
-    }, { threshold: 0.5 });
+    }, { threshold: 0.4 });
     statNums.forEach(el => statsObserver.observe(el));
   }
 
-  // ── 8. PRODUCT FILTER TABS ──────────────────────────────
+  /* ── 8. PRODUCT FILTER + SEARCH ─────────────────────────── */
   const filterTabs = document.querySelectorAll('.filter-tab');
-  // Works with both old .product-card and new .product-cat-card-new elements
   const productCards = document.querySelectorAll('.product-card[data-category], .product-cat-card-new[data-category]');
+  const searchInput = document.querySelector('#productSearchInput');
+  const filterEmpty = document.querySelector('.products-filter-empty');
+
+  let activeFilter = 'all';
+  let activeQuery = '';
+
+  function applyProductFilter() {
+    let visible = 0;
+    productCards.forEach(card => {
+      const cat = card.getAttribute('data-category');
+      const text = (card.textContent || '').toLowerCase();
+      const matchesCat = activeFilter === 'all' || cat === activeFilter;
+      const matchesQuery = !activeQuery || text.includes(activeQuery);
+      const show = matchesCat && matchesQuery;
+      card.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+    if (filterEmpty) filterEmpty.classList.toggle('visible', visible === 0);
+  }
 
   if (filterTabs.length > 0) {
     filterTabs.forEach(tab => {
       tab.addEventListener('click', () => {
         filterTabs.forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
-
-        const category = tab.getAttribute('data-filter');
-        productCards.forEach(card => {
-          if (category === 'all' || card.getAttribute('data-category') === category) {
-            card.style.display = '';
-            card.style.animation = 'fadeIn 0.3s ease';
-          } else {
-            card.style.display = 'none';
-          }
-        });
+        activeFilter = tab.getAttribute('data-filter') || 'all';
+        applyProductFilter();
       });
     });
   }
 
-  // ── 14. PRODUCT CATALOGUE MODAL ─────────────────────────
+  if (searchInput) {
+    let to;
+    searchInput.addEventListener('input', () => {
+      clearTimeout(to);
+      to = setTimeout(() => {
+        activeQuery = searchInput.value.trim().toLowerCase();
+        applyProductFilter();
+      }, 120);
+    });
+  }
 
-  // ── Product Data ──────────────────────────────────────
-  // Each product has: code, name, range, image (file path)
-  // 📷 IMAGE INSTRUCTIONS:
-  //   - Create a folder: images/products/
-  //   - Place each product image in that folder using the filename shown in the `image` field
-  //   - The image will automatically appear once the file exists at that path
+  /* ── PRODUCT CATALOGUE DATA ─────────────────────────────── */
   const productCatalogueData = {
-
     'soap': {
       title: 'Hand Soap Dispensers',
       icon: 'fa-pump-soap',
       products: [
-        // ── Pearl Range ──────────────────────────────────
-        {
-          code: 'SD/03',
-          name: 'Pearl Manual Soap Dispenser (White)',
-          range: 'Pearl Range',
-          // 📷 Place image at: images/products/SD-03.jpg
-          image: 'images/products/SD-03.png'
-        },
-        {
-          code: 'SD/03PL',
-          name: 'Pearl Manual Soap Dispenser (Platinum)',
-          range: 'Pearl Range',
-          // 📷 Place image at: images/products/SD-03PL.jpg
-          image: 'images/products/SD-03PL.jpg'
-        },
-        {
-          code: 'SD/86PRL',
-          name: 'Pearl Sensor Soap Dispenser (White)',
-          range: 'Pearl Range',
-          // 📷 Place image at: images/products/SD-86PRL.jpg
-          image: 'images/products/SD-86PRL.jpg'
-        },
-        {
-          code: 'SD/86PRLPL',
-          name: 'Pearl Sensor Soap Dispenser (Platinum)',
-          range: 'Pearl Range',
-          // 📷 Place image at: images/products/SD-86PRLPL.jpg
-          image: 'images/products/SD-86PRLPL.png'
-        },
-        // ── Excel Range ──────────────────────────────────
-        {
-          code: 'SD/84SS-MII',
-          name: 'Excel Manual Soap Dispenser',
-          range: 'Excel Range',
-          // 📷 Place image at: images/products/SD-84SS-MII.jpg
-          image: 'images/products/SD-84SS-MII.jpg'
-        },
-        {
-          code: 'SD/86SS-MII',
-          name: 'Excel Sensor Soap Dispenser',
-          range: 'Excel Range',
-          // 📷 Place image at: images/products/SD-86SS-MII.jpg
-          image: 'images/products/SD-86SS-MII.jpg'
-        },
-        // ── Betasan ──────────────────────────────────────
-        {
-          code: 'SD/84SB',
-          name: 'Betasan Manual Soap Dispenser',
-          range: 'Betasan',
-          // 📷 Place image at: images/products/SD-84SB.jpg
-          image: 'images/products/SD-84SB.png'
-        },
-        {
-          code: 'SD/86SB',
-          name: 'Betasan Sensor Soap Dispenser',
-          range: 'Betasan',
-          // 📷 Place image at: images/products/SD-86SB.jpg
-          image: 'images/products/SD-86SB.png'
-        },
-        // ── Top Up ───────────────────────────────────────
-        {
-          code: 'SD/95',
-          name: 'Top Up Soap Dispenser',
-          range: 'Top Up',
-          // 📷 Place image at: images/products/SD-95.jpg
-          image: 'images/products/SD-95.jpg'
-        },
+        { code: 'SD/03', name: 'Pearl Manual Soap Dispenser (White)', range: 'Pearl Range', image: 'images/products/SD-03.png' },
+        { code: 'SD/03PL', name: 'Pearl Manual Soap Dispenser (Platinum)', range: 'Pearl Range', image: 'images/products/SD-03PL.jpg' },
+        { code: 'SD/86PRL', name: 'Pearl Sensor Soap Dispenser (White)', range: 'Pearl Range', image: 'images/products/SD-86PRL.jpg' },
+        { code: 'SD/86PRLPL', name: 'Pearl Sensor Soap Dispenser (Platinum)', range: 'Pearl Range', image: 'images/products/SD-86PRLPL.png' },
+        { code: 'SD/84SS-MII', name: 'Excel Manual Soap Dispenser', range: 'Excel Range', image: 'images/products/SD-84SS-MII.jpg' },
+        { code: 'SD/86SS-MII', name: 'Excel Sensor Soap Dispenser', range: 'Excel Range', image: 'images/products/SD-86SS-MII.jpg' },
+        { code: 'SD/84SB', name: 'Betasan Manual Soap Dispenser', range: 'Betasan', image: 'images/products/SD-84SB.png' },
+        { code: 'SD/86SB', name: 'Betasan Sensor Soap Dispenser', range: 'Betasan', image: 'images/products/SD-86SB.png' },
+        { code: 'SD/95', name: 'Top Up Soap Dispenser', range: 'Top Up', image: 'images/products/SD-95.jpg' },
       ]
     },
-
     'sanitisers': {
       title: 'Hand Sanitisers',
       icon: 'fa-hand-sparkles',
       products: [
-        {
-          code: 'SD/72',
-          name: 'Betasan Countertop Sanitiser Dispenser',
-          range: 'Betasan',
-          // 📷 Place image at: images/products/SD-72.jpg
-          image: 'images/products/SD-72.png'
-        },
-        {
-          code: 'SD/73',
-          name: 'Free Standing Tower',
-          range: '',
-          // 📷 Place image at: images/products/SD-73.jpg
-          image: 'images/products/SD-73.jpg'
-        },
-        {
-          code: 'SD/86SP',
-          name: 'Betasan Sensor Sanitiser',
-          range: 'Betasan',
-          // 📷 Place image at: images/products/SD-86SP.jpg
-          image: 'images/products/SD-86SP.png'
-        },
-        {
-          code: 'SD/84SP',
-          name: 'Betasan Manual Sanitiser',
-          range: 'Betasan',
-          // 📷 Place image at: images/products/SD-84SP.jpg
-          image: 'images/products/SD-84SPx.png'  
-        },
+        { code: 'SD/72', name: 'Betasan Countertop Sanitiser Dispenser', range: 'Betasan', image: 'images/products/SD-72.png' },
+        { code: 'SD/73', name: 'Free Standing Tower', range: '', image: 'images/products/SD-73.jpg' },
+        { code: 'SD/86SP', name: 'Betasan Sensor Sanitiser', range: 'Betasan', image: 'images/products/SD-86SP.png' },
+        { code: 'SD/84SP', name: 'Betasan Manual Sanitiser', range: 'Betasan', image: 'images/products/SD-84SPx.png' },
       ]
     },
-
     'roll-towel': {
       title: 'Roll Towel Dispensers',
       icon: 'fa-scroll',
       products: [
-        {
-          code: 'HD/09',
-          name: 'Pearl Minitowel Sensor (White)',
-          range: 'Pearl Range',
-          // 📷 Place image at: images/products/HD-09.jpg
-          image: 'images/products/HD-09.jpg'
-        },
-        {
-          code: 'HD/09PL',
-          name: 'Pearl Minitowel Sensor (Platinum)',
-          range: 'Pearl Range',
-          // 📷 Place image at: images/products/HD-09PL.jpg
-          image: 'images/products/HD-09PL.jpg'
-        },
-        {
-          code: 'HD/01',
-          name: 'Pearl Minitowel Manual (White)',
-          range: 'Pearl Range',
-          // 📷 Place image at: images/products/HD-01.jpg
-          image: 'images/products/HD-01.png'
-        },
-        {
-          code: 'HD/01PL',
-          name: 'Pearl Minitowel Manual (Platinum)',
-          range: 'Pearl Range',
-          // 📷 Place image at: images/products/HD-01PL.jpg
-          image: 'images/products/HD-01PL.jpg'
-        },
-        {
-          code: 'HD/08-MII',
-          name: 'Excel Autotowel Manual',
-          range: 'Excel Range',
-          // 📷 Place image at: images/products/HD-08-MII.jpg
-          image: 'images/products/HD-08-MII.jpeg'
-        },
-        {
-          code: 'HD/13-MII',
-          name: 'Excel Autotowel Sensor',
-          range: 'Excel Range',
-          // 📷 Place image at: images/products/HD-13-MII.jpg
-          image: 'images/products/HD-13-MII.png'
-        },
-        {
-          code: 'HD/07',
-          name: 'Centrepull Dispenser',
-          range: '',
-          // 📷 Place image at: images/products/HD-07.jpg
-          image: 'images/products/HD-07.jpg'
-        },
+        { code: 'HD/09', name: 'Pearl Minitowel Sensor (White)', range: 'Pearl Range', image: 'images/products/HD-09.jpg' },
+        { code: 'HD/09PL', name: 'Pearl Minitowel Sensor (Platinum)', range: 'Pearl Range', image: 'images/products/HD-09PL.jpg' },
+        { code: 'HD/01', name: 'Pearl Minitowel Manual (White)', range: 'Pearl Range', image: 'images/products/HD-01.png' },
+        { code: 'HD/01PL', name: 'Pearl Minitowel Manual (Platinum)', range: 'Pearl Range', image: 'images/products/HD-01PL.jpg' },
+        { code: 'HD/08-MII', name: 'Excel Autotowel Manual', range: 'Excel Range', image: 'images/products/HD-08-MII.jpeg' },
+        { code: 'HD/13-MII', name: 'Excel Autotowel Sensor', range: 'Excel Range', image: 'images/products/HD-13-MII.png' },
+        { code: 'HD/07', name: 'Centrepull Dispenser', range: '', image: 'images/products/HD-07.jpg' },
       ]
     },
-
     'folded-towel': {
       title: 'Folded Towel Dispensers',
       icon: 'fa-layer-group',
       products: [
-        {
-          code: 'HD/05',
-          name: 'Pearl Compact (White)',
-          range: 'Pearl Range',
-          // 📷 Place image at: images/products/HD-05.jpg
-          image: 'images/products/HD-05.jpg'
-        },
-        {
-          code: 'HD/05PL',
-          name: 'Pearl Compact (Platinum)',
-          range: 'Pearl Range',
-          // 📷 Place image at: images/products/HD-05PL.jpg
-          image: 'images/products/HD-05PL.jpg'
-        },
-        {
-          code: 'HD/54-MII',
-          name: 'Excel Slimline',
-          range: 'Excel Range',
-          // 📷 Place image at: images/products/HD-54-MII.jpg
-          image: 'images/products/HD-54-MII.jpg'
-        },
+        { code: 'HD/05', name: 'Pearl Compact (White)', range: 'Pearl Range', image: 'images/products/HD-05.jpg' },
+        { code: 'HD/05PL', name: 'Pearl Compact (Platinum)', range: 'Pearl Range', image: 'images/products/HD-05PL.jpg' },
+        { code: 'HD/54-MII', name: 'Excel Slimline', range: 'Excel Range', image: 'images/products/HD-54-MII.jpg' },
       ]
     },
-
     'tissue': {
       title: 'Toilet Tissue Dispensers',
       icon: 'fa-toilet-paper',
       products: [
-        {
-          code: 'TR/02, TR/03, TR/05',
-          name: 'TR Units (2, 3, 5 roll)',
-          range: '',
-          // 📷 Place image at: images/products/TR-02-03-05.jpg
-          image: 'images/products/TR-02-03-05.jpg'
-        },
-        {
-          code: 'TR/12',
-          name: 'SFX JTR 500',
-          range: '',
-          // 📷 Place image at: images/products/TR-12.jpg
-          image: 'images/products/TR-12.jpg'
-        },
-        {
-          code: 'TR/01',
-          name: 'Pearl JTR Twin (White)',
-          range: 'Pearl Range',
-          // 📷 Place image at: images/products/TR-01.jpg
-          image: 'images/products/TR-01.jpg'
-        },
-        {
-          code: 'TR/01PL',
-          name: 'Pearl JTR Twin (Platinum)',
-          range: 'Pearl Range',
-          // 📷 Place image at: images/products/TR-01PL.jpg
-          image: 'images/products/TR-01PL.jpg'
-        },
-        {
-          code: 'TR/18SS-MII',
-          name: 'Excel JTR Twin',
-          range: 'Excel Range',
-          // 📷 Place image at: images/products/TR-18SS-MII.jpg
-          image: 'images/products/TR-18SS-MII.jpg'
-        },
+        { code: 'TR/02, TR/03, TR/05', name: 'TR Units (2, 3, 5 roll)', range: '', image: 'images/products/TR-02-03-05.jpg' },
+        { code: 'TR/12', name: 'SFX JTR 500', range: '', image: 'images/products/TR-12.jpg' },
+        { code: 'TR/01', name: 'Pearl JTR Twin (White)', range: 'Pearl Range', image: 'images/products/TR-01.jpg' },
+        { code: 'TR/01PL', name: 'Pearl JTR Twin (Platinum)', range: 'Pearl Range', image: 'images/products/TR-01PL.jpg' },
+        { code: 'TR/18SS-MII', name: 'Excel JTR Twin', range: 'Excel Range', image: 'images/products/TR-18SS-MII.jpg' },
       ]
     },
-
     'dryers': {
       title: 'Hot Air Dryers',
       icon: 'fa-wind',
       products: [
-        {
-          code: 'Quartz Fastdry',
-          name: 'Quartz Fastdry',
-          range: '',
-          // 📷 Place image at: images/products/quartz-fastdry.jpg
-          image: 'images/products/quartz-fastdry.jpg'
-        },
-        {
-          code: 'HD/04',
-          name: 'Excel E-Dry',
-          range: 'Excel Range',
-          // 📷 Place image at: images/products/HD-04.jpg
-          image: 'images/products/HD-04.jpg'
-        },
-        {
-          code: 'Excel R8',
-          name: 'Excel R8',
-          range: 'Excel Range',
-          // 📷 Place image at: images/products/excel-r8.jpg
-          image: 'images/products/excel-r8.jpg'
-        },
-        {
-          code: 'HD/22',
-          name: 'Excel V-Dry',
-          range: 'Excel Range',
-          // 📷 Place image at: images/products/HD-22.jpg
-          image: 'images/products/HD-22.jpg'
-        },
+        { code: 'Quartz Fastdry', name: 'Quartz Fastdry', range: '', image: 'images/products/quartz-fastdry.jpg' },
+        { code: 'HD/04', name: 'Excel E-Dry', range: 'Excel Range', image: 'images/products/HD-04.jpg' },
+        { code: 'Excel R8', name: 'Excel R8', range: 'Excel Range', image: 'images/products/excel-r8.jpg' },
+        { code: 'HD/22', name: 'Excel V-Dry', range: 'Excel Range', image: 'images/products/HD-22.jpg' },
       ]
     },
-
     'fragrance': {
       title: 'Fragrance Systems',
       icon: 'fa-spray-can',
       products: [
-        // ── Dispensers ───────────────────────────────────
-        {
-          code: 'AF/04',
-          name: 'Pearl Airmist (White)',
-          range: 'Pearl Range',
-          // 📷 Place image at: images/products/AF-04.jpg
-          image: 'images/products/AF-04.jpg'
-        },
-        {
-          code: 'AF/04PL',
-          name: 'Pearl Airmist (Platinum)',
-          range: 'Pearl Range',
-          // 📷 Place image at: images/products/AF-04PL.jpg
-          image: 'images/products/AF-04PL.jpg'
-        },
-        {
-          code: 'AF/06-MII',
-          name: 'Excel Airmist MKII',
-          range: 'Excel Range',
-          // 📷 Place image at: images/products/AF-06-MII.jpg
-          image: 'images/products/AF-06-MII.jpg'
-        },
-        // ── Fragrance Refills ─────────────────────────────
-        {
-          code: 'Refill',
-          name: 'Citrus Rush',
-          range: 'Fragrance Refills',
-          // 📷 Place image at: images/products/refill-citrus-rush.jpg
-          image: 'images/products/refill-citrus-rush.jpg'
-        },
-        {
-          code: 'Refill',
-          name: 'Baby Breeze',
-          range: 'Fragrance Refills',
-          // 📷 Place image at: images/products/refill-baby-breeze.jpg
-          image: 'images/products/refill-baby-breeze.jpg'
-        },
-        {
-          code: 'Refill',
-          name: 'Berry Mint',
-          range: 'Fragrance Refills',
-          // 📷 Place image at: images/products/refill-berry-mint.jpg
-          image: 'images/products/refill-berry-mint.jpg'
-        },
-        {
-          code: 'Refill',
-          name: 'Candy Blast',
-          range: 'Fragrance Refills',
-          // 📷 Place image at: images/products/refill-candy-blast.jpg
-          image: 'images/products/refill-candy-blast.jpg'
-        },
-        {
-          code: 'Refill',
-          name: 'Edge',
-          range: 'Fragrance Refills',
-          // 📷 Place image at: images/products/refill-edge.jpg
-          image: 'images/products/refill-edge.jpg'
-        },
-        {
-          code: 'Refill',
-          name: 'Vanilla',
-          range: 'Fragrance Refills',
-          // 📷 Place image at: images/products/refill-vanilla.jpg
-          image: 'images/products/refill-vanilla.jpg'
-        },
-        {
-          code: 'Refill',
-          name: 'Citronella Lemongrass',
-          range: 'Fragrance Refills',
-          // 📷 Place image at: images/products/refill-citronella.jpg
-          image: 'images/products/refill-citronella.jpg'
-        },
+        { code: 'AF/04', name: 'Pearl Airmist (White)', range: 'Pearl Range', image: 'images/products/AF-04.jpg' },
+        { code: 'AF/04PL', name: 'Pearl Airmist (Platinum)', range: 'Pearl Range', image: 'images/products/AF-04PL.jpg' },
+        { code: 'AF/06-MII', name: 'Excel Airmist MKII', range: 'Excel Range', image: 'images/products/AF-06-MII.jpg' },
+        { code: 'Refill', name: 'Citrus Rush', range: 'Fragrance Refills', image: 'images/products/refill-citrus-rush.jpg' },
+        { code: 'Refill', name: 'Baby Breeze', range: 'Fragrance Refills', image: 'images/products/refill-baby-breeze.jpg' },
+        { code: 'Refill', name: 'Berry Mint', range: 'Fragrance Refills', image: 'images/products/refill-berry-mint.jpg' },
+        { code: 'Refill', name: 'Candy Blast', range: 'Fragrance Refills', image: 'images/products/refill-candy-blast.jpg' },
+        { code: 'Refill', name: 'Edge', range: 'Fragrance Refills', image: 'images/products/refill-edge.jpg' },
+        { code: 'Refill', name: 'Vanilla', range: 'Fragrance Refills', image: 'images/products/refill-vanilla.jpg' },
+        { code: 'Refill', name: 'Citronella Lemongrass', range: 'Fragrance Refills', image: 'images/products/refill-citronella.jpg' },
       ]
     },
-
     'urinal': {
       title: 'Urinal Hygiene',
       icon: 'fa-restroom',
       products: [
-        {
-          code: 'US/08-MII',
-          name: 'Excel Autosan',
-          range: 'Excel Range',
-          // 📷 Place image at: images/products/US-08-MII.jpg
-          image: 'images/products/US-08-MII.jpg'
-        },
-        {
-          code: 'US/22',
-          name: 'SFX Autosan',
-          range: '',
-          // 📷 Place image at: images/products/US-22.jpg
-          image: 'images/products/US-22.jpg'
-        },
-        {
-          code: 'UR/06 / UR/07',
-          name: 'V-Screen Urinal Screens',
-          range: '',
-          // 📷 Place image at: images/products/UR-06-07.jpg
-          image: 'images/products/UR-06-07.jpg'
-        },
-        {
-          code: 'UR/27B–33B',
-          name: 'Wave 3D Screens',
-          range: '',
-          // 📷 Place image at: images/products/UR-27B-33B.jpg
-          image: 'images/products/UR-27B-33B.jpg'
-        },
+        { code: 'US/08-MII', name: 'Excel Autosan', range: 'Excel Range', image: 'images/products/US-08-MII.jpg' },
+        { code: 'US/22', name: 'SFX Autosan', range: '', image: 'images/products/US-22.jpg' },
+        { code: 'UR/06 / UR/07', name: 'V-Screen Urinal Screens', range: '', image: 'images/products/UR-06-07.jpg' },
+        { code: 'UR/27B–33B', name: 'Wave 3D Screens', range: '', image: 'images/products/UR-27B-33B.jpg' },
       ]
     },
-
     'seat': {
       title: 'Seat Sanitisers',
       icon: 'fa-toilet',
       products: [
-        {
-          code: 'WD/03',
-          name: 'Pearl Seatsan (White)',
-          range: 'Pearl Range',
-          // 📷 Place image at: images/products/WD-03.jpg
-          image: 'images/products/WD-03.jpg'
-        },
-        {
-          code: 'WD/03PL',
-          name: 'Pearl Seatsan (Platinum)',
-          range: 'Pearl Range',
-          // 📷 Place image at: images/products/WD-03PL.jpg
-          image: 'images/products/WD-03PL.jpg'
-        },
-        {
-          code: 'WD/06-MII',
-          name: 'Excel Seatsan',
-          range: 'Excel Range',
-          // 📷 Place image at: images/products/WD-06-MII.jpg
-          image: 'images/products/WD-06-MII.jpg'
-        },
+        { code: 'WD/03', name: 'Pearl Seatsan (White)', range: 'Pearl Range', image: 'images/products/WD-03.jpg' },
+        { code: 'WD/03PL', name: 'Pearl Seatsan (Platinum)', range: 'Pearl Range', image: 'images/products/WD-03PL.jpg' },
+        { code: 'WD/06-MII', name: 'Excel Seatsan', range: 'Excel Range', image: 'images/products/WD-06-MII.jpg' },
       ]
     },
-
     'sanitary': {
       title: 'Sanitary Disposal',
       icon: 'fa-trash-can',
       products: [
-        {
-          code: 'SW/26-MII',
-          name: 'Excel Femcare Bin',
-          range: 'Excel Range',
-          // 📷 Place image at: images/products/SW-26-MII.jpg
-          image: 'images/products/SW-26-MII.jpg'
-        },
-        {
-          code: 'SW/01X / SW/03X',
-          name: 'Femcare Bins (White)',
-          range: '',
-          // 📷 Place image at: images/products/SW-01X-03X.jpg
-          image: 'images/products/SW-01X-03X.jpg'
-        },
-        {
-          code: 'SW/01XPL / SW/03XPL',
-          name: 'Femcare Bins (Platinum)',
-          range: '',
-          // 📷 Place image at: images/products/SW-01XPL-03XPL.jpg
-          image: 'images/products/SW-01XPL-03XPL.jpg'
-        },
-        {
-          code: 'SW/50',
-          name: 'Femcare Pedal Bin',
-          range: '',
-          // 📷 Place image at: images/products/SW-50.jpg
-          image: 'images/products/SW-50.jpg'
-        },
+        { code: 'SW/26-MII', name: 'Excel Femcare Bin', range: 'Excel Range', image: 'images/products/SW-26-MII.jpg' },
+        { code: 'SW/01X / SW/03X', name: 'Femcare Bins (White)', range: '', image: 'images/products/SW-01X-03X.jpg' },
+        { code: 'SW/01XPL / SW/03XPL', name: 'Femcare Bins (Platinum)', range: '', image: 'images/products/SW-01XPL-03XPL.jpg' },
+        { code: 'SW/50', name: 'Femcare Pedal Bin', range: '', image: 'images/products/SW-50.jpg' },
       ]
     },
-
     'waste': {
       title: 'Waste Bins',
       icon: 'fa-dumpster',
       products: [
-        {
-          code: 'SW/13-MII',
-          name: 'Excel Wastecare',
-          range: 'Excel Range',
-          // 📷 Place image at: images/products/SW-13-MII.jpg
-          image: 'images/products/SW-13-MII.jpg'
-        },
-        {
-          code: 'SW/76',
-          name: 'Eco Wall Bin 6L',
-          range: '',
-          // 📷 Place image at: images/products/SW-76.jpg
-          image: 'images/products/SW-76.jpg'
-        },
-        {
-          code: 'SW/77',
-          name: 'Eco Wall Bin 25L',
-          range: '',
-          // 📷 Place image at: images/products/SW-77.jpg
-          image: 'images/products/SW-77.jpg'
-        },
-        
+        { code: 'SW/13-MII', name: 'Excel Wastecare', range: 'Excel Range', image: 'images/products/SW-13-MII.jpg' },
+        { code: 'SW/76', name: 'Eco Wall Bin 6L', range: '', image: 'images/products/SW-76.jpg' },
+        { code: 'SW/77', name: 'Eco Wall Bin 25L', range: '', image: 'images/products/SW-77.jpg' },
       ]
     },
-
     'ppe': {
       title: 'PPE & Other Products',
       icon: 'fa-shield-halved',
       products: [
-        {
-          code: 'Nitrile Gloves',
-          name: 'Luvas de nitrilo (100 pack)',
-          range: 'PPE',
-          // 📷 Place image at: images/products/nitrile-gloves.jpg
-          image: 'images/products/nitrile-gloves.jpg'
-        },
-        {
-          code: 'CAPS009',
-          name: 'Mop Caps',
-          range: 'PPE',
-          // 📷 Place image at: images/products/CAPS009.jpg
-          image: 'images/products/CAPS009.jpg'
-        },
-        {
-          code: 'Betasan Wipes',
-          name: 'Betasan All Purpose Sanitiser Wipes',
-          range: 'PPE',
-          // 📷 Place image at: images/products/Betasan-Allpurpose.jpg
-          image: 'images/products/Betasan-All-Purpose-Wipes.jpg'
-        },
-        {
-          code: 'Aerosoal Fogger',
-          name: 'Betasan Aerosol fogger Range',
-          range: 'PPE',
-          // 📷 Place image at: images/products/Aerosoal-Fooger.jpg.jpg
-          image: 'images/products/Aerosoal-Fogger.jpg'
-        },
+        { code: 'Nitrile Gloves', name: 'Luvas de nitrilo (100 pack)', range: 'PPE', image: 'images/products/nitrile-gloves.jpg' },
+        { code: 'CAPS009', name: 'Mop Caps', range: 'PPE', image: 'images/products/CAPS009.jpg' },
+        { code: 'Betasan Wipes', name: 'Betasan All Purpose Sanitiser Wipes', range: 'PPE', image: 'images/products/Betasan-All-Purpose-Wipes.jpg' },
+        { code: 'Aerosoal Fogger', name: 'Betasan Aerosol fogger Range', range: 'PPE', image: 'images/products/Aerosoal-Fogger.jpg' },
       ]
     },
+  };
 
-  }; // end productCatalogueData
-
-  // ── Modal Elements ────────────────────────────────────
+  /* ── PRODUCT CATALOGUE MODAL ────────────────────────────── */
   const catalogueModal      = document.getElementById('catalogueModal');
   const catalogueModalClose = document.getElementById('catalogueModalClose');
   const catalogueBackdrop   = document.getElementById('catalogueModalBackdrop');
   const catalogueTitle      = document.getElementById('catalogueModalTitle');
   const catalogueIcon       = document.getElementById('catalogueModalIcon');
   const catalogueGrid       = document.getElementById('catalogueProductsGrid');
+  let activeCatalogueKey = null;
+  let lastFocusedTrigger = null;
 
-  // Only wire up modal logic on the products page
-  if (catalogueModal) {
-
-  // ── Render a single product card ─────────────────────
   function renderProductCard(product) {
     const productName = product.nameKey ? t(product.nameKey) : product.name;
     const productRange = product.rangeKey ? t(product.rangeKey) : product.range;
@@ -792,22 +474,22 @@ document.addEventListener('DOMContentLoaded', function () {
     return `
       <div class="catalogue-product-card">
         <div class="catalogue-product-img-wrap">
-
           <img
             src="${product.image}"
             alt="${productName}"
             class="catalogue-product-img"
+            loading="lazy"
             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
           >
-          <div class="catalogue-product-placeholder" style="display:none;">
+          <div class="catalogue-product-placeholder">
             <i class="fas fa-image"></i>
-            <span>${safeCode}</span>
+            <span>${product.code}</span>
           </div>
         </div>
         <div class="catalogue-product-info">
           ${rangeHtml}
           <h4 class="catalogue-product-name">${productName}</h4>
-          <p class="catalogue-product-code">${t('products_code_label')}: ${product.code}</p>
+          <p class="catalogue-product-code">${t('products_code_label') || 'Code'}: ${product.code}</p>
           <div class="catalogue-cart-controls">
             <label class="catalogue-qty-label" for="qty-${safeCode}">Qty</label>
             <input id="qty-${safeCode}" type="number" min="1" value="1" class="catalogue-qty-input" data-product-code="${product.code}">
@@ -823,29 +505,24 @@ document.addEventListener('DOMContentLoaded', function () {
     `;
   }
 
-  // ── Open Modal ────────────────────────────────────────
-  let activeCatalogueKey = null;
-
-  function openCatalogueModal(catalogueKey) {
+  function openCatalogueModal(catalogueKey, triggerEl) {
+    if (!catalogueModal) return;
     const data = productCatalogueData[catalogueKey];
     if (!data) return;
 
     activeCatalogueKey = catalogueKey;
+    lastFocusedTrigger = triggerEl || null;
 
-    // Update header
     const translatedTitle = data.titleKey ? t(data.titleKey) : data.title;
     catalogueTitle.textContent = translatedTitle;
     catalogueIcon.className    = `fas ${data.icon}`;
 
-    // Render products
-    catalogueGrid.innerHTML = data.products
-      .map(p => renderProductCard(p))
-      .join('');
+    catalogueGrid.innerHTML = data.products.map(p => renderProductCard(p)).join('');
 
-    // Open modal
     catalogueModal.classList.add('open');
     document.body.classList.add('modal-open');
     catalogueGrid.scrollTop = 0;
+    setTimeout(() => catalogueModalClose?.focus(), 120);
 
     catalogueGrid.querySelectorAll('[data-add-to-cart="true"]').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -858,6 +535,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const qty = Math.max(1, Number(qtyInput?.value) || 1);
 
         addToCart(selectedProduct, qty);
+        toast(`Added ${qty} × ${selectedProduct.name}`, 'success');
 
         const original = btn.innerHTML;
         btn.innerHTML = '<span>Added</span><i class="fas fa-check"></i>';
@@ -870,39 +548,43 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // ── Close Modal ───────────────────────────────────────
   function closeCatalogueModal() {
+    if (!catalogueModal) return;
     catalogueModal.classList.remove('open');
     document.body.classList.remove('modal-open');
     activeCatalogueKey = null;
+    lastFocusedTrigger?.focus?.();
   }
 
-  // ── Category Card Click ───────────────────────────────
-  document.querySelectorAll('.product-cat-card-new[data-catalogue]').forEach(card => {
-    card.addEventListener('click', () => {
-      const key = card.getAttribute('data-catalogue');
-      openCatalogueModal(key);
+  if (catalogueModal) {
+    document.querySelectorAll('.product-cat-card-new[data-catalogue]').forEach(card => {
+      card.setAttribute('tabindex', '0');
+      card.setAttribute('role', 'button');
+      const trigger = (e) => {
+        if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return;
+        if (e.type === 'keydown') e.preventDefault();
+        const key = card.getAttribute('data-catalogue');
+        openCatalogueModal(key, card);
+      };
+      card.addEventListener('click', trigger);
+      card.addEventListener('keydown', trigger);
     });
-  });
 
-  // ── Close Triggers ────────────────────────────────────
-  catalogueModalClose.addEventListener('click', closeCatalogueModal);
-  catalogueBackdrop.addEventListener('click', closeCatalogueModal);
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && catalogueModal.classList.contains('open')) {
-      closeCatalogueModal();
-    }
-  });
-
-    document.addEventListener('inyathi:languageChanged', () => {
-      if (catalogueModal.classList.contains('open') && activeCatalogueKey) {
-        openCatalogueModal(activeCatalogueKey);
+    catalogueModalClose?.addEventListener('click', closeCatalogueModal);
+    catalogueBackdrop?.addEventListener('click', closeCatalogueModal);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && catalogueModal.classList.contains('open')) {
+        closeCatalogueModal();
       }
     });
+    document.addEventListener('inyathi:languageChanged', () => {
+      if (catalogueModal.classList.contains('open') && activeCatalogueKey) {
+        openCatalogueModal(activeCatalogueKey, lastFocusedTrigger);
+      }
+    });
+  }
 
-  } // end if (catalogueModal)
-
-  // ── CHECKOUT PAGE FLOW ──────────────────────────────────
+  /* ── CHECKOUT PAGE FLOW ─────────────────────────────────── */
   const checkoutCartList = document.getElementById('checkoutCartList');
   const checkoutTotalAmount = document.getElementById('checkoutTotalAmount');
   const payCardBtn = document.getElementById('payCardBtn');
@@ -921,41 +603,49 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     checkoutCartList.innerHTML = items.map(item => `
-  <div class="checkout-item-row">
-    <div>
-      <strong>${item.name}</strong>
-      <p style="margin:0.25rem 0 0;color:var(--mid-gray);font-size:0.85rem;">
-        ${item.code}${item.range ? ` • ${item.range}` : ''}
-      </p>
-    </div>
-
-    <div class="checkout-item-actions">
-      <strong>x${item.quantity}</strong>
-      <button class="remove-cart-btn" data-id="${item.id}">
-        <i class="fas fa-trash"></i>
-      </button>
-    </div>
-  </div>
-`).join('');
+      <div class="checkout-item-row">
+        <div>
+          <strong>${item.name}</strong>
+          <p style="margin:0.25rem 0 0;color:var(--mid-gray);font-size:0.85rem;">
+            ${item.code}${item.range ? ` &middot; ${item.range}` : ''}
+          </p>
+        </div>
+        <div class="checkout-item-actions">
+          <strong>x${item.quantity}</strong>
+          <button class="remove-cart-btn" data-id="${item.id}" aria-label="Remove ${item.name}">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+    `).join('');
 
     checkoutTotalAmount.textContent = formatCurrency(getCartTotalAmount());
   }
 
   if (checkoutCartList) {
-  checkoutCartList.addEventListener('click', function (e) {
+    checkoutCartList.addEventListener('click', function (e) {
+      const removeBtn = e.target.closest('.remove-cart-btn');
+      if (removeBtn) removeFromCart(removeBtn.getAttribute('data-id'));
+    });
 
-    const removeBtn = e.target.closest('.remove-cart-btn');
+    renderCheckoutCart();
 
-    if (removeBtn) {
-      const id = removeBtn.getAttribute('data-id');
-      removeFromCart(id);
-    }
-
-  });
-}
+    payCardBtn?.addEventListener('click', () => {
+      if (bankDetailsBox) {
+        bankDetailsBox.style.display = 'block';
+        bankDetailsBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    });
+    proceedToQuoteBtn?.addEventListener('click', () => transferCartToQuoteAndGo('Card / Bank Transfer'));
+    payCashBtn?.addEventListener('click', () => transferCartToQuoteAndGo('Cash'));
+  }
 
   function transferCartToQuoteAndGo(paymentMethodLabel) {
     const items = getCartItems();
+    if (!items.length) {
+      toast('Your cart is empty. Add products before checking out.', 'error');
+      return;
+    }
     localStorage.setItem(QUOTE_CART_TRANSFER_KEY, JSON.stringify({
       paymentMethod: paymentMethodLabel,
       items
@@ -963,35 +653,7 @@ document.addEventListener('DOMContentLoaded', function () {
     window.location.href = 'pricing.html';
   }
 
-  if (checkoutCartList) {
-    renderCheckoutCart();
-
-    if (payCardBtn) {
-      payCardBtn.addEventListener('click', () => {
-        if (bankDetailsBox) bankDetailsBox.style.display = 'block';
-      });
-    }
-
-    if (proceedToQuoteBtn) {
-      proceedToQuoteBtn.addEventListener('click', () => {
-        transferCartToQuoteAndGo('Card / Bank Transfer');
-      });
-    }
-
-    if (payCashBtn) {
-      payCashBtn.addEventListener('click', () => {
-        transferCartToQuoteAndGo('Cash');
-      });
-    }
-  }
-  document.querySelectorAll('.remove-cart-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const id = btn.getAttribute('data-id');
-      removeFromCart(id);
-    });
-  });
-
-  // ── PRICING PAGE CART TRANSFER PREFILL ──────────────────
+  /* ── PRICING PAGE PREFILL FROM CART ─────────────────────── */
   const pricingQuoteForm = document.getElementById('quoteForm');
   if (pricingQuoteForm) {
     try {
@@ -1019,12 +681,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
   updateCartCountBadges();
 
-  // ── 9. CONTACT FORM ─────────────────────────────────────
+  /* ── 9. CONTACT FORM ────────────────────────────────────── */
   const contactForm = document.getElementById('contactForm');
   if (contactForm) {
     contactForm.addEventListener('submit', async function (e) {
       e.preventDefault();
-      if (!validateForm(contactForm)) return;
+      if (!validateForm(contactForm)) {
+        toast('Please fill in the highlighted fields.', 'error');
+        return;
+      }
 
       const submitBtn = contactForm.querySelector('button[type="submit"]');
       setButtonLoading(submitBtn, true);
@@ -1038,7 +703,7 @@ document.addEventListener('DOMContentLoaded', function () {
         subject:     contactInputs[4]?.value.trim(),
         message:     contactForm.querySelector('textarea.form-control')?.value.trim(),
       };
-      
+
       try {
         const res  = await fetch(apiUrl('/api/contact'), {
           method:  'POST',
@@ -1049,6 +714,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (data.success) {
           showFormSuccess(contactForm, 'contactSuccess');
+          toast('Message sent. We\'ll be in touch within 24 hours.', 'success', 4500);
         } else {
           showFormError(contactForm, data.message || 'Submission failed. Please try again.');
         }
@@ -1060,12 +726,15 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // ── 10. QUOTE FORM ──────────────────────────────────────
+  /* ── 10. QUOTE FORM ─────────────────────────────────────── */
   const quoteForm = document.getElementById('quoteForm');
   if (quoteForm) {
     quoteForm.addEventListener('submit', async function (e) {
       e.preventDefault();
-      if (!validateForm(quoteForm)) return;
+      if (!validateForm(quoteForm)) {
+        toast('Please complete the required fields.', 'error');
+        return;
+      }
 
       const submitBtn = quoteForm.querySelector('button[type="submit"]');
       setButtonLoading(submitBtn, true);
@@ -1090,7 +759,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const data = await res.json();
 
         if (data.success) {
-          // Show quote reference in success message if available
           const successEl = document.getElementById('quoteSuccess');
           if (successEl && data.quote_reference) {
             const refEl = document.createElement('p');
@@ -1099,6 +767,7 @@ document.addEventListener('DOMContentLoaded', function () {
             successEl.appendChild(refEl);
           }
           showFormSuccess(quoteForm, 'quoteSuccess');
+          toast('Quote request received. Reply within 24 hours.', 'success', 5000);
         } else {
           showFormError(quoteForm, data.message || 'Submission failed. Please try again.');
         }
@@ -1110,42 +779,62 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // ── 11. FORM VALIDATION ─────────────────────────────────
+  /* ── 11. FORM VALIDATION ────────────────────────────────── */
+  function setFieldInvalid(field, invalid) {
+    field.setAttribute('aria-invalid', invalid ? 'true' : 'false');
+    if (!invalid) field.removeAttribute('aria-invalid');
+  }
+
+  function validateField(field) {
+    if (!field.hasAttribute('required') && !field.value.trim()) {
+      setFieldInvalid(field, false);
+      return true;
+    }
+    if (field.hasAttribute('required') && !field.value.trim()) {
+      setFieldInvalid(field, true);
+      return false;
+    }
+    if (field.type === 'email' && field.value.trim()) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const ok = emailRegex.test(field.value.trim());
+      setFieldInvalid(field, !ok);
+      return ok;
+    }
+    if (field.type === 'tel' && field.value.trim()) {
+      const ok = /^[\d+\-\s()]{6,}$/.test(field.value.trim());
+      setFieldInvalid(field, !ok);
+      return ok;
+    }
+    setFieldInvalid(field, false);
+    return true;
+  }
+
   function validateForm(form) {
     let valid = true;
-    form.querySelectorAll('[required]').forEach(field => {
-      const group = field.closest('.form-group');
-      if (!field.value.trim()) {
-        valid = false;
-        field.style.borderColor = '#e53935';
-        if (group) group.querySelector('label').style.color = '#e53935';
-      } else {
-        field.style.borderColor = '';
-        if (group) group.querySelector('label').style.color = '';
-      }
-
-      // Email validation
-      if (field.type === 'email' && field.value.trim()) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(field.value.trim())) {
-          valid = false;
-          field.style.borderColor = '#e53935';
-        }
-      }
+    form.querySelectorAll('[required], input[type="email"]').forEach(field => {
+      if (!validateField(field)) valid = false;
     });
     return valid;
   }
+
+  // real-time validation on blur + clear on input
+  document.querySelectorAll('.form-control').forEach(field => {
+    field.addEventListener('blur', () => validateField(field));
+    field.addEventListener('input', () => {
+      if (field.getAttribute('aria-invalid') === 'true') validateField(field);
+    });
+  });
 
   function showFormSuccess(form, successId) {
     const successEl = document.getElementById(successId);
     if (successEl) {
       form.style.display = 'none';
       successEl.style.display = 'block';
+      successEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   }
 
   function showFormError(form, message) {
-    // Remove any existing error banner
     const existing = form.querySelector('.form-api-error');
     if (existing) existing.remove();
 
@@ -1155,7 +844,7 @@ document.addEventListener('DOMContentLoaded', function () {
       'background:#fdecea',
       'color:#c62828',
       'border:1px solid #ef9a9a',
-      'border-radius:8px',
+      'border-radius:10px',
       'padding:0.85rem 1rem',
       'margin-bottom:1rem',
       'font-size:0.88rem',
@@ -1165,8 +854,7 @@ document.addEventListener('DOMContentLoaded', function () {
     ].join(';');
     banner.innerHTML = `<i class="fas fa-circle-exclamation"></i> ${message}`;
     form.prepend(banner);
-
-    // Auto-remove after 6 seconds
+    toast(message, 'error', 4500);
     setTimeout(() => banner.remove(), 6000);
   }
 
@@ -1182,51 +870,48 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  // Clear validation styles on input
-  document.querySelectorAll('.form-control').forEach(field => {
-    field.addEventListener('input', () => {
-      field.style.borderColor = '';
-      const group = field.closest('.form-group');
-      if (group && group.querySelector('label')) {
-        group.querySelector('label').style.color = '';
-      }
-    });
-  });
-
-  // ── 12. SMOOTH SCROLL FOR ANCHOR LINKS ──────────────────
+  /* ── 12. SMOOTH SCROLL ──────────────────────────────────── */
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
-      const target = document.querySelector(this.getAttribute('href'));
+      const href = this.getAttribute('href');
+      if (href === '#' || href === '#!') return;
+      const target = document.querySelector(href);
       if (target) {
         e.preventDefault();
-        const offset = 80;
+        const offset = 90;
         const top = target.getBoundingClientRect().top + window.scrollY - offset;
         window.scrollTo({ top, behavior: 'smooth' });
       }
     });
   });
 
-  // ── 13. HERO CARD FLOAT ANIMATION ───────────────────────
-  const heroCards = document.querySelectorAll('.hero-card');
-  heroCards.forEach((card, i) => {
-    card.style.animation = `float ${2.5 + i * 2.5}s ease-in-out infinite alternate`;
+  /* ── 13. HERO TILT (subtle parallax on pointer) ─────────── */
+  const heroVisual = document.querySelector('.hero-visual');
+  if (heroVisual && window.matchMedia('(hover:hover)').matches && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const cards = heroVisual.querySelectorAll('.hero-card');
+    heroVisual.addEventListener('mousemove', (e) => {
+      const r = heroVisual.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width  - 0.5;
+      const y = (e.clientY - r.top)  / r.height - 0.5;
+      cards.forEach((card, i) => {
+        const depth = (i + 1) * 6;
+        card.style.transform = `translate(${x * depth}px, ${y * depth}px)`;
+        if (card.classList.contains('hero-card-main')) {
+          card.style.transform = `translate(calc(-50% + ${x * depth}px), calc(-50% + ${y * depth}px))`;
+        }
+      });
+    });
+    heroVisual.addEventListener('mouseleave', () => {
+      cards.forEach(card => {
+        card.style.transform = card.classList.contains('hero-card-main') ? 'translate(-50%,-50%)' : '';
+      });
+    });
+  }
+
+  /* ── 14. LAZY-LOAD ANY IMG WITHOUT loading attr ─────────── */
+  document.querySelectorAll('img:not([loading])').forEach(img => {
+    img.setAttribute('loading', 'lazy');
+    img.setAttribute('decoding', 'async');
   });
 
 });
-
-// ── CSS KEYFRAME INJECTION ───────────────────────────────
-const style = document.createElement('style');
-style.textContent = `
-  @keyframes float {
-    from { transform: translateY(0px); }
-    to   { transform: translateY(-10px); }
-  }
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  .hero-card-main {
-    animation: float 3s ease-in-out infinite alternate !important;
-  }
-`;
-document.head.appendChild(style);
